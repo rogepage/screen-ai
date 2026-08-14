@@ -69,9 +69,22 @@ O agente nunca deve implementar funcionalidades de fases futuras.
 
 Se uma implementação atual exigir antecipar uma decisão de uma fase futura:
 
-1. identificar a dependência;
-2. explicar o problema;
-3. propor alternativas;
-4. aguardar aprovação.
+## Build e Distribuição (Fase 14)
+
+Para compilar, empacotar e distribuir o Screen AI:
+
+```bash
+# 1. Instalar dependências e compilar assets
+composer install --no-dev --optimize-autoloader
+npm run build
+
+# 2. Executar empacotamento com NativePHP
+php artisan native:build mac
+```
+
+Consulte os guias detalhados:
+- [`BUILD.md`](file:///Users/roger/Desktop/docker/screen-ai/BUILD.md): Guia oficial de compilação reproduzível e empacotamento `.dmg`.
+- [`RELEASE_CHECKLIST.md`](file:///Users/roger/Desktop/docker/screen-ai/RELEASE_CHECKLIST.md): Checklist de 20 pontos de validação pré-release.
+- [`TROUBLESHOOTING.md`](file:///Users/roger/Desktop/docker/screen-ai/TROUBLESHOOTING.md): Resolução de problemas comuns.
 
 O agente nunca deve marcar uma fase como CONCLUÍDA sem aprovação explícita do usuário.

@@ -207,6 +207,38 @@ A Fase 13 garante a resiliência operacional contínua e o diagnóstico seguro d
 - **HealthCheckService & DiagnosticService**: Avaliação de integridade em tempo real e exportação de relatórios sanitizados.
 - **CleanupService**: Remoção periódica e na inicialização de arquivos temporários de captura.
 
+## Build, Empacotamento e Distribuição macOS (Fase 14)
+
+A Fase 14 estabelece o pipeline oficial de empacotamento autocontido para macOS:
+
+```text
+               CÓDIGO FONTE & ASSETS
+                         │
+                         ▼
+             [ npm run build ] (Vite / Frontend Assets)
+                         │
+                         ▼
+             [ php artisan native:build ] (NativePHP Desktop 2.2.1)
+                         │
+        ┌────────────────┴────────────────┐
+        ▼                                 ▼
+   [ PHP 8.4 Runtime ]            [ Electron Runtime ]
+   (Embutido no pacote)          (Camada nativa de UI)
+        │                                 │
+        └────────────────┬────────────────┘
+                         ▼
+                [ Screen AI.app ]
+                (Bundle macOS com ScreenCaptureKit,
+                 SQLite local e Atalhos Globais)
+                         │
+                         ▼
+                [ Screen AI.dmg ] (Imagem de Distribuição)
+```
+
+- **Bundle macOS**: `Screen AI.app` autocontido com PHP 8.4, Electron, Laravel e ScreenCaptureKit.
+- **Isolamento de Armazenamento**: Dados de usuário (`settings.json`, SQLite) desacoplados do bundle do app.
+- **Proteção de Segredos**: Remoção de variáveis de desenvolvimento e chaves sensíveis durante o empacotamento de produção.
+
 ## Fases de Desenvolvimento
 
 - FASE 0  → Ambiente (CONCLUÍDA)
@@ -222,5 +254,5 @@ A Fase 13 garante a resiliência operacional contínua e o diagnóstico seguro d
 - FASE 10 → Monitoramento Contínuo (CONCLUÍDA)
 - FASE 11 → Experiência Nativa do macOS (CONCLUÍDA)
 - FASE 12 → Configurações e Onboarding (CONCLUÍDA)
-- FASE 13 → Hardening e Observabilidade (EM ANDAMENTO)
-- FASE 14 → Distribuição
+- FASE 13 → Hardening e Observabilidade (CONCLUÍDA)
+- FASE 14 → Distribuição (EM ANDAMENTO)

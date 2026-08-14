@@ -25,6 +25,10 @@
 .native/
 dist/
 dist-native/
+build/
+release/
+*.dmg
+*.app
 /public/build
 /public/hot
 /public/storage
