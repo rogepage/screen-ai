@@ -154,9 +154,23 @@
 <body>
     <div class="container">
         <header>
-            <h1>Screen AI — Painel de Controle</h1>
-            <span id="stateBadge" class="badge stopped">STOPPED</span>
+            <div>
+                <h1 style="display: inline-block; margin-right: 12px;">Screen AI — Painel de Controle</h1>
+                <span id="stateBadge" class="badge stopped">STOPPED</span>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn-secondary" onclick="window.location.href='/'">Monitor</button>
+                <button class="btn-secondary" onclick="window.location.href='/settings'">Configurações</button>
+                <button class="btn-secondary" onclick="window.location.href='/onboarding'">Onboarding</button>
+            </div>
         </header>
+
+        <div id="permWarningBanner" style="display: none; background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger); border-radius: 8px; padding: 12px 16px; justify-content: space-between; align-items: center;">
+            <div style="font-size: 13px; color: #fca5a5;">
+                <strong>Aviso de Permissão:</strong> A gravação de tela do macOS não está autorizada para o Screen AI.
+            </div>
+            <button class="btn-secondary" style="font-size: 12px; padding: 4px 10px;" onclick="openSystemSettings()">Abrir Ajustes do macOS</button>
+        </div>
 
         <div class="card">
             <h2>Controle do Monitor</h2>
@@ -734,9 +748,33 @@
             log('Overlay flutuante aberto com sucesso.');
         }
 
+        async function checkStartupPermission() {
+            try {
+                const res = await fetch('/api/startup/status');
+                const data = await res.json();
+                const banner = document.getElementById('permWarningBanner');
+                if (!data.permission_granted) {
+                    banner.style.display = 'flex';
+                } else {
+                    banner.style.display = 'none';
+                }
+            } catch (e) {
+                // Silencioso
+            }
+        }
+
+        async function openSystemSettings() {
+            try {
+                await fetch('/api/startup/permissions/open-settings', { method: 'POST' });
+            } catch (e) {
+                alert('Erro ao abrir Ajustes: ' + e.message);
+            }
+        }
+
         fetchState();
         loadHistory(1);
         fetchPipelineStats();
+        checkStartupPermission();
     </script>
 </body>
 </html>

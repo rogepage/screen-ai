@@ -73,6 +73,17 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\EloquentAnalysisHistoryRepository::class
         );
 
+        $this->app->singleton(\App\Services\AI\AnalysisHistoryService::class);
+
+        $this->app->bind(
+            \App\Services\Native\PermissionServiceInterface::class,
+            \App\Services\Native\MacPermissionService::class
+        );
+
+        $this->app->singleton(\App\Services\Settings\SettingsValidator::class);
+        $this->app->singleton(\App\Services\Settings\AppSettingsService::class);
+        $this->app->singleton(\App\Services\Startup\StartupService::class);
+
         $this->app->singleton(\App\Services\Native\NativeBridgeService::class);
 
         $this->app->singleton(\App\Services\Screen\CaptureDebounceService::class, function () {

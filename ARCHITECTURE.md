@@ -151,6 +151,39 @@ Capture Pipeline          AIManagerService
 - **Overlay Flutuante**: Janela compacta e translúcida posicionada fora da área monitorada (com detecção de colisão anti-loop).
 - **MenuBar**: Ícone e menu contextual rápido no topo do macOS.
 
+## Configurações, Permissões e Onboarding do macOS (Fase 12)
+
+A Fase 12 estabelece o fluxo de primeira execução e gestão segura de configurações:
+
+```text
+                  INÍCIO DA APLICAÇÃO
+                           │
+                           ▼
+                    StartupService
+                           │
+                 ┌─────────┴─────────┐
+                 │                   │
+            Primeira Execução?    Usuário Existente
+                 │                   │
+                 ▼                   ▼
+          Onboarding Wizard     Verificação de Permissão
+         (Fase 12 Step-by-Step) (PermissionServiceInterface)
+                 │                   │
+                 └─────────┬─────────┘
+                           ▼
+                    AppSettingsService (settings.json / SQLite)
+                           │
+                           ▼
+                    SettingsValidator
+                           │
+                           ▼
+                 Painel Principal & Pipelines
+```
+
+- **PermissionServiceInterface & MacPermissionService**: Verificação e orientação transparente de permissão de gravação de tela no macOS.
+- **AppSettingsService & SettingsValidator**: Gestão persistente de configurações locais sem expor segredos.
+- **Onboarding Wizard**: Guia passo a passo de configuração para novos usuários.
+
 ## Fases de Desenvolvimento
 
 - FASE 0  → Ambiente (CONCLUÍDA)
@@ -163,8 +196,8 @@ Capture Pipeline          AIManagerService
 - FASE 7  → Integração com IA (CONCLUÍDA)
 - FASE 8  → Modos de análise (CONCLUÍDA)
 - FASE 9  → Histórico (CONCLUÍDA)
-- FASE 10 → Monitoramento Contínuo (EM ANDAMENTO)
+- FASE 10 → Monitoramento Contínuo (CONCLUÍDA)
 - FASE 11 → Experiência Nativa do macOS (CONCLUÍDA)
-- FASE 12 → Overlay
+- FASE 12 → Configurações e Onboarding (EM ANDAMENTO)
 - FASE 13 → Otimização
 - FASE 14 → Distribuição

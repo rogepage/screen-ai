@@ -19,7 +19,11 @@ use App\Services\AI\AnalysisHistoryService;
 use App\Services\AI\AnalysisService;
 use App\Services\Native\NativeBridgeService;
 use App\Services\Screen\ContinuousMonitorService;
+use App\Services\Native\PermissionServiceInterface;
+use App\Services\Settings\AppSettingsService;
+use App\Services\Startup\StartupService;
 use App\Services\Screen\ImageProcessorInterface;
+use App\DTO\AppSettingsDTO;
 
 class MonitorController extends Controller
 {
@@ -32,7 +36,10 @@ class MonitorController extends Controller
         private readonly AnalysisService $analysisService,
         private readonly AnalysisHistoryService $historyService,
         private readonly NativeBridgeService $nativeBridge,
-        private readonly ContinuousMonitorService $continuousMonitor
+        private readonly ContinuousMonitorService $continuousMonitor,
+        private readonly AppSettingsService $settingsService,
+        private readonly StartupService $startupService,
+        private readonly PermissionServiceInterface $permissionService
     ) {}
 
     public function getState(): JsonResponse
@@ -265,6 +272,99 @@ class MonitorController extends Controller
             'state' => $this->monitorService->getState()->value,
             'stats' => $this->continuousMonitor->getStats(),
         ]);
+    }
+
+    public function getStartupStatus(): JsonResponse
+    {
+        return response()->json($this->startupService->checkStartupStatus());
+    }
+
+    public function completeOnboarding(): JsonResponse
+    {
+        $this->settingsService->markOnboardingCompleted();
+
+        return response()->json(['message' => 'Onboarding concluído com sucesso.']);
+    }
+
+    public function openPermissionSettings(): JsonResponse
+    {
+        $this->permissionService->openSystemSettings();
+
+        return response()->json(['message' => 'Ajustes do Sistema solicitados.']);
+    }
+
+    public function getSettings(): JsonResponse
+    {
+        return response()->json($this->settingsService->getSettings()->toArray());
+    }
+
+    public function saveSettings(Request $request): JsonResponse
+    {
+        $dto = AppSettingsDTO::fromArray($request->all());
+        $errors = $this->settingsService->saveSettings($dto);
+
+        if (!empty($errors)) {
+            return response()->json(['errors' => $errors], 422);
+        }
+
+        return response()->json([
+            'message' => 'Configurações salvas com sucesso.',
+            'settings' => $this->settingsService->getSettings()->toArray(),
+        ]);
+    }
+
+    public function testAiConnection(Request $request): JsonResponse
+    {
+        $providerName = $request->input('ai_provider');
+        $model = $request->input('ai_model');
+
+        try {
+            $promptDTO = new AiPromptDTO(
+                actionType: ActionType::INTERPRET,
+                userInstruction: 'Teste de conexão com a IA.'
+            );
+
+            $response = $this->aiManagerService->analyze($promptDTO, $providerName);
+
+            return response()->json([
+                'success' => $response->success,
+                'provider' => $response->provider,
+                'model' => $response->model,
+                'message' => $response->success ? 'Conexão realizada com sucesso.' : 'Não foi possível conectar à IA.',
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Não foi possível conectar à IA.',
+            ], 500);
+        }
+    }
+
+    public function testCapturePreview(): JsonResponse
+    {
+        $region = $this->regionService->getRegion() ?? new ScreenRegionDTO(x: 0, y: 0, width: 800, height: 600);
+
+        try {
+            $capture = $this->captureService->captureRegion($region);
+            $processed = $this->imageProcessor->process($capture);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Captura de tela realizada com sucesso.',
+                'preview' => [
+                    'file_path' => $processed->processedPath,
+                    'width' => $processed->width,
+                    'height' => $processed->height,
+                    'file_size' => $processed->fileSize,
+                    'format' => $processed->format,
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Falha ao testar captura: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }
 
