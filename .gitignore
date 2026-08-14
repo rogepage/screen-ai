@@ -1,0 +1,51 @@
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs and Caches
+*.log
+.phpunit.result.cache
+/.phpunit.cache
+/storage/logs/*.log
+
+# Storage & Captures (Screen AI temporary files)
+/storage/app/captures/*
+!/storage/app/captures/.gitkeep
+/storage/app/public/*
+!/storage/app/public/.gitkeep
+/storage/framework/cache/data/*
+/storage/framework/sessions/*
+/storage/framework/testing/*
+/storage/framework/views/*
+/storage/pail/*
+/storage/*.key
+
+# NativePHP & Build artifacts
+.native/
+dist/
+dist-native/
+/public/build
+/public/hot
+/public/storage
+/public/fonts-manifest.dev.json
+/node_modules
+/vendor
+/auth.json
+
+# IDEs & System files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+.zed/
+.codex/
+.cursor/
+.nova/
+.phpactor.json
+_ide_helper.php
+Homestead.json
+Homestead.yaml
+
