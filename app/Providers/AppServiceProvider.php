@@ -60,6 +60,13 @@ class AppServiceProvider extends ServiceProvider
             $manager->registerProvider($gemini);
             return $manager;
         });
+
+        $this->app->bind(
+            \App\Services\AI\PromptBuilderInterface::class,
+            \App\Services\AI\DefaultPromptBuilder::class
+        );
+
+        $this->app->singleton(\App\Services\AI\AnalysisService::class);
     }
 
     /**

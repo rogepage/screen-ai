@@ -214,23 +214,42 @@
         </div>
 
         <div class="card">
-            <h2>Simulação de Análise de IA (Mock)</h2>
-            <div class="form-group">
-                <label for="actionType">Tipo de Ação</label>
-                <select id="actionType">
-                    <option value="interpret">Interpretar Conteúdo</option>
-                    <option value="translate">Traduzir Texto</option>
-                    <option value="answer">Responder Pergunta</option>
-                    <option value="explain">Explicar Código / Erro</option>
-                    <option value="summarize">Resumir Conteúdo</option>
-                    <option value="custom">Instrução Personalizada</option>
-                </select>
+            <h2>Orquestração e Modos de Análise de IA (Fase 8)</h2>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label for="actionType">Modo / Ação de Análise</label>
+                    <select id="actionType" onchange="toggleCustomInstruction()">
+                        <option value="interpret">Interpretar Conteúdo Visual</option>
+                        <option value="translate">Traduzir Texto Presente</option>
+                        <option value="answer">Responder Pergunta Exibida</option>
+                        <option value="explain">Explicar Conteúdo / Erro / Código</option>
+                        <option value="summarize">Resumir Conteúdo da Tela</option>
+                        <option value="custom">Instrução Personalizada (Custom)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="responseLanguage">Idioma da Resposta</label>
+                    <select id="responseLanguage">
+                        <option value="pt-BR" selected>Português (Brasil)</option>
+                        <option value="en-US">English (US)</option>
+                        <option value="es-ES">Español</option>
+                        <option value="fr-FR">Français</option>
+                    </select>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="userInstruction">Instrução de Teste</label>
-                <input type="text" id="userInstruction" value="Explique o que esta tela está apresentando." />
+
+            <div class="form-group" id="customInstructionGroup" style="display: none;">
+                <label for="userInstruction">Instrução Personalizada do Usuário</label>
+                <textarea id="userInstruction" rows="3" placeholder="Ex: Explique o erro exibido nesta imagem de forma didática..."></textarea>
             </div>
-            <button class="btn-analyze" onclick="simulateAnalysis()">Disparar Análise Mock</button>
+
+            <div class="btn-group">
+                <button class="btn-analyze" id="btnAnalyzeNow" onclick="runAnalysisNow()">Analisar Agora</button>
+            </div>
+
+            <div id="analysisStatus" style="display: none; font-size: 13px; margin-top: 8px; color: var(--muted-text);">
+                Status: <span id="analysisStatusText">Pronto</span>
+            </div>
         </div>
 
         <div class="card">
@@ -380,23 +399,47 @@
             }
         }
 
-        async function simulateAnalysis() {
+        function toggleCustomInstruction() {
+            const action = document.getElementById('actionType').value;
+            const group = document.getElementById('customInstructionGroup');
+            group.style.display = action === 'custom' ? 'block' : 'none';
+        }
+
+        async function runAnalysisNow() {
             const actionType = document.getElementById('actionType').value;
+            const language = document.getElementById('responseLanguage').value;
             const instruction = document.getElementById('userInstruction').value;
 
-            log(`Iniciando análise simulada [${actionType}]...`);
+            const statusBox = document.getElementById('analysisStatus');
+            const statusText = document.getElementById('analysisStatusText');
+
+            statusBox.style.display = 'block';
+            statusText.innerText = 'Analisando...';
+            log(`Iniciando análise [Modo: ${actionType}, Idioma: ${language}]...`);
 
             try {
                 const res = await fetch('/api/ai/analyze', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action_type: actionType, user_instruction: instruction })
+                    body: JSON.stringify({
+                        action_type: actionType,
+                        user_instruction: instruction,
+                        language: language
+                    })
                 });
                 const data = await res.json();
-                log(`[Resposta IA] Provedor: ${data.response.provider} (${data.response.model})`);
-                log(`[Texto] ${data.response.text}`);
+
+                if (res.ok && data.response && data.response.success) {
+                    statusText.innerText = 'Concluído';
+                    log(`[Resposta IA — ${data.response.provider}] ${data.response.text}`);
+                } else {
+                    const errorMsg = data.error || (data.response ? data.response.error_message : 'Erro desconhecido');
+                    statusText.innerText = 'Falha na Análise';
+                    log(`[Erro IA] ${errorMsg}`);
+                }
             } catch (e) {
-                log('Erro ao simular análise: ' + e.message);
+                statusText.innerText = 'Erro de Conexão';
+                log('Erro na análise: ' + e.message);
             }
         }
 

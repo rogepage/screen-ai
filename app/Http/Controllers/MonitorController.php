@@ -14,13 +14,18 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
 
+use App\Services\AI\AnalysisService;
+use App\Services\Screen\ImageProcessorInterface;
+
 class MonitorController extends Controller
 {
     public function __construct(
         private readonly ScreenMonitorService $monitorService,
         private readonly ScreenRegionService $regionService,
         private readonly ScreenCaptureInterface $captureService,
-        private readonly AiManagerService $aiManagerService
+        private readonly AiManagerService $aiManagerService,
+        private readonly ImageProcessorInterface $imageProcessor,
+        private readonly AnalysisService $analysisService
     ) {}
 
     public function getState(): JsonResponse
@@ -133,19 +138,42 @@ class MonitorController extends Controller
     {
         $actionTypeStr = $request->input('action_type', 'interpret');
         $actionType = ActionType::tryFrom($actionTypeStr) ?? ActionType::INTERPRET;
-        $instruction = $request->input('user_instruction', 'Test instruction');
+        $instruction = $request->input('user_instruction');
+        $language = $request->input('language');
 
-        $prompt = new AiPromptDTO(
-            actionType: $actionType,
-            userInstruction: $instruction
-        );
+        $lastCapture = $this->monitorService->getLastCapture();
 
-        $response = $this->aiManagerService->analyze($prompt);
+        if ($lastCapture === null) {
+            // Se ainda não houver captura em memória, tenta realizar uma para demonstrar no teste/UI
+            $region = $this->regionService->getRegion() ?? new ScreenRegionDTO(x: 0, y: 0, width: 800, height: 600);
+            try {
+                $lastCapture = $this->captureService->captureRegion($region);
+                $this->monitorService->processCapture($lastCapture);
+            } catch (\Throwable $e) {
+                return response()->json([
+                    'error' => 'Nenhuma captura de tela disponível para análise. Execute uma captura primeiro.',
+                ], 422);
+            }
+        }
 
-        return response()->json([
-            'prompt' => $prompt->toArray(),
-            'response' => $response->toArray(),
-        ]);
+        try {
+            $processedImage = $this->imageProcessor->process($lastCapture);
+            $responseDTO = $this->analysisService->analyze(
+                image: $processedImage,
+                action: $actionType,
+                userInstruction: $instruction,
+                language: $language
+            );
+
+            return response()->json([
+                'action_type' => $actionType->value,
+                'response' => $responseDTO->toArray(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Falha ao analisar a imagem: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }
 

@@ -14,8 +14,8 @@ class PromptBuilderTest extends TestCase
         $prompt = new AiPromptDTO(actionType: ActionType::INTERPRET);
         $result = PromptBuilder::build($prompt, 'pt-BR');
 
-        $this->assertStringContainsString('Analise o conteúdo da imagem', $result);
-        $this->assertStringContainsString('Responda estritamente no idioma: pt-BR.', $result);
+        $this->assertStringContainsString('Analise visualmente o conteúdo da imagem', $result);
+        $this->assertStringContainsString('Idioma de resposta obrigatório: pt-BR.', $result);
     }
 
     public function test_builds_translate_prompt(): void
@@ -24,7 +24,7 @@ class PromptBuilderTest extends TestCase
         $result = PromptBuilder::build($prompt, 'en-US');
 
         $this->assertStringContainsString('Identifique o texto presente na imagem e traduza', $result);
-        $this->assertStringContainsString('Responda estritamente no idioma: en-US.', $result);
+        $this->assertStringContainsString('Idioma de resposta obrigatório: en-US.', $result);
     }
 
     public function test_builds_custom_prompt_with_user_instruction(): void
@@ -36,7 +36,7 @@ class PromptBuilderTest extends TestCase
         $result = PromptBuilder::build($prompt, 'pt-BR');
 
         $this->assertStringContainsString('Qual é o erro retornado no terminal?', $result);
-        $this->assertStringContainsString('Responda estritamente no idioma: pt-BR.', $result);
+        $this->assertStringContainsString('Idioma de resposta obrigatório: pt-BR.', $result);
     }
 
     public function test_includes_system_prompt_when_provided(): void
@@ -48,6 +48,6 @@ class PromptBuilderTest extends TestCase
         $result = PromptBuilder::build($prompt, 'pt-BR');
 
         $this->assertStringContainsString('Você é um assistente sênior de desenvolvimento.', $result);
-        $this->assertStringContainsString('Resuma o conteúdo principal', $result);
+        $this->assertStringContainsString('Resuma o conteúdo relevante', $result);
     }
 }
