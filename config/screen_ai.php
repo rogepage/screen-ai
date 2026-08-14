@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'version' => env('APP_VERSION', '1.0.0'),
+    'version' => env('APP_VERSION', '1.1.0'),
 
     /*
     |--------------------------------------------------------------------------
@@ -17,8 +17,8 @@ return [
     */
     'ai' => [
         'default_provider' => env('AI_PROVIDER', 'mock'),
-        'default_model' => env('AI_MODEL', 'gemini-1.5-flash'),
-        'api_key' => env('AI_API_KEY', ''),
+        'default_model' => env('AI_MODEL', 'mock'),
+        'api_key' => env('AI_API_KEY', 'mock'),
         'timeout' => (int) env('AI_TIMEOUT', 30),
         'max_retries' => (int) env('AI_MAX_RETRIES', 2),
         'response_language' => env('AI_RESPONSE_LANGUAGE', 'pt-BR'),
