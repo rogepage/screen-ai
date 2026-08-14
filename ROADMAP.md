@@ -20,9 +20,16 @@ Status: CONCLUÍDA
 - [x] Criar testes
 
 ## FASE 3 — Seleção da área
-Status: EM ANDAMENTO
+Status: CONCLUÍDA
+
+### Objetivos
+
+- [x] Criar ScreenRegionService
+- [x] Criar DTO de Região e Eventos (RegionSelected, RegionCleared)
+- [x] Criar Overlay de Seleção (selection.blade.php)
+- [x] Criar Endpoints HTTP API de Região
+- [x] Integrar seleção na Interface Principal
+- [x] Criar testes unitários e de integração
 
 ## FASE 4 — ScreenCaptureKit
-Status: PENDENTE
-
-...
+Status: EM ANDAMENTO

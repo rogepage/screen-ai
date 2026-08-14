@@ -19,6 +19,7 @@ Route::prefix('api/monitor')->group(function () {
     Route::post('/start', [MonitorController::class, 'start']);
     Route::post('/stop', [MonitorController::class, 'stop']);
     Route::post('/pause', [MonitorController::class, 'pause']);
+    Route::post('/capture', [MonitorController::class, 'captureFrame']);
 });
 
 Route::post('/api/ai/analyze', [MonitorController::class, 'analyze']);

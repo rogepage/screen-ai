@@ -138,6 +138,17 @@
             color: #38bdf8;
             white-space: pre-wrap;
         }
+
+        .capture-info {
+            font-size: 13px;
+            font-family: monospace;
+            background-color: var(--bg-color);
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            color: #22c55e;
+            word-break: break-all;
+        }
     </style>
 </head>
 <body>
@@ -190,6 +201,16 @@
                 </div>
             </div>
             <button class="btn-secondary" onclick="saveManualRegion()">Definir Coordenadas Manuais</button>
+        </div>
+
+        <div class="card">
+            <h2>Captura Nativa de Tela (ScreenCaptureKit - Fase 4)</h2>
+            <div class="btn-group">
+                <button class="btn-start" onclick="triggerCapture()">Capturar Frame da Área Selecionada</button>
+            </div>
+            <div id="captureDetails" class="capture-info" style="display: none;">
+                Nenhuma captura realizada nesta sessão.
+            </div>
         </div>
 
         <div class="card">
@@ -300,6 +321,24 @@
                 log('Região limpa.');
             } catch (e) {
                 log('Erro ao limpar região: ' + e.message);
+            }
+        }
+
+        async function triggerCapture() {
+            log('Disparando captura de tela nativa...');
+            try {
+                const res = await fetch('/api/monitor/capture', { method: 'POST' });
+                const data = await res.json();
+                if (res.ok) {
+                    const details = document.getElementById('captureDetails');
+                    details.style.display = 'block';
+                    details.innerText = `[Captura OK] Arquivo: ${data.capture.file_path}\nHash: ${data.capture.hash}\nTimestamp: ${data.capture.timestamp}`;
+                    log(`Frame capturado com sucesso: ${data.capture.file_path}`);
+                } else {
+                    log('Erro na captura: ' + data.error);
+                }
+            } catch (e) {
+                log('Erro ao solicitar captura: ' + e.message);
             }
         }
 

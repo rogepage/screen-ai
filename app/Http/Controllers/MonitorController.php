@@ -7,6 +7,7 @@ use App\DTO\MonitorConfigDTO;
 use App\Enums\ActionType;
 use App\DTO\ScreenRegionDTO;
 use App\Services\AI\AiManagerService;
+use App\Services\Screen\ScreenCaptureInterface;
 use App\Services\Screen\ScreenMonitorService;
 use App\Services\Screen\ScreenRegionService;
 use Illuminate\Http\JsonResponse;
@@ -18,6 +19,7 @@ class MonitorController extends Controller
     public function __construct(
         private readonly ScreenMonitorService $monitorService,
         private readonly ScreenRegionService $regionService,
+        private readonly ScreenCaptureInterface $captureService,
         private readonly AiManagerService $aiManagerService
     ) {}
 
@@ -104,6 +106,24 @@ class MonitorController extends Controller
             'message' => 'Monitor pausado',
             'state' => $this->monitorService->getState()->value,
         ]);
+    }
+
+    public function captureFrame(): JsonResponse
+    {
+        $region = $this->regionService->getRegion() ?? new ScreenRegionDTO(x: 0, y: 0, width: 800, height: 600);
+
+        try {
+            $captureResult = $this->captureService->captureRegion($region);
+
+            return response()->json([
+                'message' => 'Frame capturado com sucesso',
+                'capture' => $captureResult->toArray(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => 'Falha na captura: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function analyze(Request $request): JsonResponse
