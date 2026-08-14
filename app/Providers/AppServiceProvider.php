@@ -67,6 +67,13 @@ class AppServiceProvider extends ServiceProvider
         );
 
         $this->app->singleton(\App\Services\AI\AnalysisService::class);
+
+        $this->app->bind(
+            \App\Repositories\AnalysisHistoryRepositoryInterface::class,
+            \App\Repositories\EloquentAnalysisHistoryRepository::class
+        );
+
+        $this->app->singleton(\App\Services\AI\AnalysisHistoryService::class);
     }
 
     /**

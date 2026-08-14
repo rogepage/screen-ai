@@ -70,17 +70,47 @@ A arquitetura principal será:
                        Screen AI 
                        
 
- → NativePHP
-FASE 2  → Estrutura da aplicação
-FASE 3  → Seleção da área
-FASE 4  → ScreenCaptureKit
-FASE 5  → Detecção de mudanças
-FASE 6  → Processamento da imagem
-FASE 7  → Integração com IA
-FASE 8  → Modos de análise
-FASE 9  → Histórico
-FASE 10 → UX
-FASE 11 → Atalhos globais
-FASE 12 → Overlay
-FASE 13 → Otimização
-FASE 14 → Distribuição
+## Persistência e Histórico (Fase 9)
+
+O Screen AI inclui uma camada desacoplada para persistência local de análises no SQLite, mantendo privacidade estrita (sem armazenar imagens nem credenciais):
+
+```text
+                UI
+                 │
+                 ▼
+          AnalysisService
+                 │
+       ┌─────────┴─────────┐
+       ▼                   ▼
+ AIManagerService    AnalysisHistoryService
+       │                   │
+       ▼                   ▼
+AiProviderInterface  AnalysisHistoryRepositoryInterface
+       │                   │
+       ▼                   ▼
+Concrete Provider    EloquentAnalysisHistoryRepository
+                           │
+                           ▼
+                  AnalysisHistory Model
+                           │
+                           ▼
+                     SQLite Database
+```
+
+## Fases de Desenvolvimento
+
+- FASE 0  → Ambiente (CONCLUÍDA)
+- FASE 1  → NativePHP (CONCLUÍDA)
+- FASE 2  → Estrutura da aplicação (CONCLUÍDA)
+- FASE 3  → Seleção da área (CONCLUÍDA)
+- FASE 4  → ScreenCaptureKit (CONCLUÍDA)
+- FASE 5  → Detecção de mudanças (CONCLUÍDA)
+- FASE 6  → Processamento da imagem (CONCLUÍDA)
+- FASE 7  → Integração com IA (CONCLUÍDA)
+- FASE 8  → Modos de análise (CONCLUÍDA)
+- FASE 9  → Histórico (EM ANDAMENTO)
+- FASE 10 → UX
+- FASE 11 → Atalhos globais
+- FASE 12 → Overlay
+- FASE 13 → Otimização
+- FASE 14 → Distribuição

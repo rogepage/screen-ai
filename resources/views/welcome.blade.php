@@ -253,6 +253,62 @@
         </div>
 
         <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h2 style="margin: 0;">Histórico de Análises (Fase 9)</h2>
+                <div class="btn-group" style="margin: 0;">
+                    <button class="btn-secondary" onclick="loadHistory(1)">Atualizar</button>
+                    <button class="btn-stop" onclick="clearAllHistory()">Limpar Todo o Histórico</button>
+                </div>
+            </div>
+
+            <div class="grid-2" style="margin-bottom: 12px;">
+                <div class="form-group" style="margin: 0;">
+                    <label for="filterAction">Filtrar por Ação</label>
+                    <select id="filterAction" onchange="loadHistory(1)">
+                        <option value="">Todas as Ações</option>
+                        <option value="interpret">Interpretar</option>
+                        <option value="translate">Traduzir</option>
+                        <option value="answer">Responder</option>
+                        <option value="explain">Explicar</option>
+                        <option value="summarize">Resumir</option>
+                        <option value="custom">Personalizado</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin: 0;">
+                    <label for="filterStatus">Filtrar por Status</label>
+                    <select id="filterStatus" onchange="loadHistory(1)">
+                        <option value="">Todos os Status</option>
+                        <option value="success">Sucesso (SUCCESS)</option>
+                        <option value="failed">Falha (FAILED)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="historyListContainer" style="margin-top: 12px;">
+                <div id="historyEmpty" style="color: var(--muted-text); font-size: 14px; padding: 12px 0;">
+                    Nenhum registro de análise encontrado.
+                </div>
+                <div id="historyList" style="display: flex; flex-direction: column; gap: 8px;"></div>
+            </div>
+
+            <div id="historyPagination" style="display: none; justify-content: space-between; align-items: center; margin-top: 16px; font-size: 13px; color: var(--muted-text);">
+                <button class="btn-secondary" id="btnPrevPage" onclick="prevHistoryPage()">« Anterior</button>
+                <span id="pageIndicator">Página 1 de 1</span>
+                <button class="btn-secondary" id="btnNextPage" onclick="nextHistoryPage()">Próxima »</button>
+            </div>
+        </div>
+
+        <div id="detailsModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center; padding: 20px;">
+            <div style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; max-width: 600px; width: 100%; max-height: 80vh; overflow-y: auto; padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 16px;">
+                    <h3 style="margin: 0;" id="modalTitle">Detalhes da Análise</h3>
+                    <button class="btn-secondary" onclick="closeDetailsModal()">Fechar</button>
+                </div>
+                <div id="modalContent" style="font-size: 14px; line-height: 1.6;"></div>
+            </div>
+        </div>
+
+        <div class="card">
             <h2>Logs & Respostas do Sistema</h2>
             <div id="logBox" class="log-box">[Sistema] Interface inicializada. Aguardando comandos...</div>
         </div>
@@ -432,10 +488,12 @@
                 if (res.ok && data.response && data.response.success) {
                     statusText.innerText = 'Concluído';
                     log(`[Resposta IA — ${data.response.provider}] ${data.response.text}`);
+                    loadHistory(1);
                 } else {
                     const errorMsg = data.error || (data.response ? data.response.error_message : 'Erro desconhecido');
                     statusText.innerText = 'Falha na Análise';
                     log(`[Erro IA] ${errorMsg}`);
+                    loadHistory(1);
                 }
             } catch (e) {
                 statusText.innerText = 'Erro de Conexão';
@@ -443,7 +501,156 @@
             }
         }
 
+        let currentHistoryPage = 1;
+        let totalHistoryPages = 1;
+
+        async function loadHistory(page = 1) {
+            currentHistoryPage = page;
+            const action = document.getElementById('filterAction').value;
+            const status = document.getElementById('filterStatus').value;
+
+            let url = `/api/history?page=${page}&per_page=5`;
+            if (action) url += `&action_type=${encodeURIComponent(action)}`;
+            if (status) url += `&status=${encodeURIComponent(status)}`;
+
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+
+                const list = document.getElementById('historyList');
+                const empty = document.getElementById('historyEmpty');
+                const pagination = document.getElementById('historyPagination');
+                const pageIndicator = document.getElementById('pageIndicator');
+
+                list.innerHTML = '';
+                totalHistoryPages = data.last_page || 1;
+
+                if (!data.items || data.items.length === 0) {
+                    empty.style.display = 'block';
+                    pagination.style.display = 'none';
+                } else {
+                    empty.style.display = 'none';
+                    pagination.style.display = 'flex';
+                    pageIndicator.innerText = `Página ${data.page} de ${totalHistoryPages} (${data.total} registros)`;
+
+                    document.getElementById('btnPrevPage').disabled = data.page <= 1;
+                    document.getElementById('btnNextPage').disabled = data.page >= totalHistoryPages;
+
+                    data.items.forEach(item => {
+                        const itemCard = document.createElement('div');
+                        itemCard.style.cssText = 'background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; display: flex; justify-content: space-between; align-items: center;';
+
+                        const isSuccess = item.status === 'success';
+                        const badgeColor = isSuccess ? 'var(--success)' : 'var(--danger)';
+                        const previewText = item.response_text ? (item.response_text.length > 70 ? item.response_text.substring(0, 70) + '...' : item.response_text) : (item.error_message || 'Sem conteúdo');
+                        const dateFormatted = item.created_at ? new Date(item.created_at).toLocaleString('pt-BR') : 'Data não informada';
+
+                        itemCard.innerHTML = `
+                            <div style="display: flex; flex-direction: column; gap: 4px; overflow: hidden; margin-right: 12px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-size: 11px; font-weight: 700; background: var(--border-color); padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">${item.action_type}</span>
+                                    <span style="font-size: 11px; font-weight: 700; color: ${badgeColor}; text-transform: uppercase;">${item.status}</span>
+                                    <span style="font-size: 12px; color: var(--muted-text);">${dateFormatted}</span>
+                                </div>
+                                <div style="font-size: 13px; color: #f1f5f9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                    ${previewText}
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 6px; flex-shrink: 0;">
+                                <button class="btn-secondary" style="padding: 4px 8px; font-size: 12px;" onclick="viewHistoryDetails(${item.id})">Ver</button>
+                                <button class="btn-stop" style="padding: 4px 8px; font-size: 12px;" onclick="deleteHistory(${item.id})">✕</button>
+                            </div>
+                        `;
+                        list.appendChild(itemCard);
+                    });
+                }
+            } catch (e) {
+                log('Erro ao carregar histórico: ' + e.message);
+            }
+        }
+
+        function prevHistoryPage() {
+            if (currentHistoryPage > 1) {
+                loadHistory(currentHistoryPage - 1);
+            }
+        }
+
+        function nextHistoryPage() {
+            if (currentHistoryPage < totalHistoryPages) {
+                loadHistory(currentHistoryPage + 1);
+            }
+        }
+
+        async function viewHistoryDetails(id) {
+            try {
+                const res = await fetch(`/api/history/${id}`);
+                const data = await res.json();
+                if (!res.ok) {
+                    alert(data.error || 'Erro ao carregar detalhes');
+                    return;
+                }
+
+                const item = data.item;
+                const modal = document.getElementById('detailsModal');
+                const content = document.getElementById('modalContent');
+
+                content.innerHTML = `
+                    <p><strong>Ação:</strong> <span style="text-transform: uppercase;">${item.action_type}</span></p>
+                    <p><strong>Status:</strong> <span style="font-weight: bold; color: ${item.status === 'success' ? 'var(--success)' : 'var(--danger)'};">${item.status.toUpperCase()}</span></p>
+                    <p><strong>Provedor / Modelo:</strong> ${item.provider} (${item.model || 'N/A'})</p>
+                    <p><strong>Duração:</strong> ${item.duration_ms ? item.duration_ms + 'ms' : 'N/A'}</p>
+                    <p><strong>Data/Hora:</strong> ${item.created_at ? new Date(item.created_at).toLocaleString('pt-BR') : 'N/A'}</p>
+                    ${item.user_instruction ? `<p><strong>Instrução do Usuário:</strong> ${item.user_instruction}</p>` : ''}
+                    ${item.response_text ? `<div style="margin-top: 12px;"><strong>Resposta da IA:</strong><div style="background: var(--bg-color); padding: 12px; border-radius: 6px; border: 1px solid var(--border-color); margin-top: 6px; white-space: pre-wrap; font-family: monospace; font-size: 13px;">${item.response_text}</div></div>` : ''}
+                    ${item.error_message ? `<div style="margin-top: 12px; color: var(--danger);"><strong>Mensagem de Erro:</strong> ${item.error_message}</div>` : ''}
+                `;
+
+                modal.style.display = 'flex';
+            } catch (e) {
+                alert('Erro ao buscar detalhes da análise: ' + e.message);
+            }
+        }
+
+        function closeDetailsModal() {
+            document.getElementById('detailsModal').style.display = 'none';
+        }
+
+        async function deleteHistory(id) {
+            if (!confirm('Deseja realmente excluir este registro de análise?')) return;
+
+            try {
+                const res = await fetch(`/api/history/${id}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (res.ok) {
+                    log(`Registro de histórico #${id} excluído com sucesso.`);
+                    loadHistory(currentHistoryPage);
+                } else {
+                    log('Erro ao excluir: ' + (data.error || 'Erro desconhecido'));
+                }
+            } catch (e) {
+                log('Erro ao excluir registro: ' + e.message);
+            }
+        }
+
+        async function clearAllHistory() {
+            if (!confirm('Tem certeza que deseja apagar todo o histórico de análises? Esta ação não pode ser desfeita.')) return;
+
+            try {
+                const res = await fetch('/api/history', { method: 'DELETE' });
+                const data = await res.json();
+                if (res.ok) {
+                    log('Todo o histórico de análises foi limpo com sucesso.');
+                    loadHistory(1);
+                } else {
+                    log('Erro ao limpar histórico: ' + (data.error || 'Erro desconhecido'));
+                }
+            } catch (e) {
+                log('Erro ao limpar histórico: ' + e.message);
+            }
+        }
+
         fetchState();
+        loadHistory(1);
     </script>
 </body>
 </html>

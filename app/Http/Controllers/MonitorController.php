@@ -14,6 +14,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
 
+use App\Enums\AnalysisStatus;
+use App\Services\AI\AnalysisHistoryService;
 use App\Services\AI\AnalysisService;
 use App\Services\Screen\ImageProcessorInterface;
 
@@ -25,7 +27,8 @@ class MonitorController extends Controller
         private readonly ScreenCaptureInterface $captureService,
         private readonly AiManagerService $aiManagerService,
         private readonly ImageProcessorInterface $imageProcessor,
-        private readonly AnalysisService $analysisService
+        private readonly AnalysisService $analysisService,
+        private readonly AnalysisHistoryService $historyService
     ) {}
 
     public function getState(): JsonResponse
@@ -174,6 +177,56 @@ class MonitorController extends Controller
                 'error' => 'Falha ao analisar a imagem: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function getHistory(Request $request): JsonResponse
+    {
+        $page = (int) $request->input('page', 1);
+        $perPage = (int) $request->input('per_page', 20);
+        $actionStr = $request->input('action_type');
+        $statusStr = $request->input('status');
+
+        $action = $actionStr ? ActionType::tryFrom($actionStr) : null;
+        $status = $statusStr ? AnalysisStatus::tryFrom($statusStr) : null;
+
+        $historyData = $this->historyService->listHistory($page, $perPage, $action, $status);
+
+        return response()->json([
+            'items' => array_map(fn ($dto) => $dto->toArray(), $historyData['items']),
+            'total' => $historyData['total'],
+            'page' => $historyData['page'],
+            'per_page' => $historyData['per_page'],
+            'last_page' => $historyData['last_page'],
+        ]);
+    }
+
+    public function getHistoryItem(int $id): JsonResponse
+    {
+        $item = $this->historyService->getAnalysis($id);
+
+        if (!$item) {
+            return response()->json(['error' => 'Registro de análise não encontrado.'], 404);
+        }
+
+        return response()->json(['item' => $item->toArray()]);
+    }
+
+    public function deleteHistoryItem(int $id): JsonResponse
+    {
+        $deleted = $this->historyService->deleteAnalysis($id);
+
+        if (!$deleted) {
+            return response()->json(['error' => 'Registro não encontrado para exclusão.'], 404);
+        }
+
+        return response()->json(['message' => 'Registro de análise excluído com sucesso.']);
+    }
+
+    public function clearHistory(): JsonResponse
+    {
+        $this->historyService->clearHistory();
+
+        return response()->json(['message' => 'Todo o histórico de análises foi limpo com sucesso.']);
     }
 }
 

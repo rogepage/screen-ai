@@ -24,4 +24,11 @@ Route::prefix('api/monitor')->group(function () {
 
 Route::post('/api/ai/analyze', [MonitorController::class, 'analyze']);
 
+Route::prefix('api/history')->group(function () {
+    Route::get('/', [MonitorController::class, 'getHistory']);
+    Route::get('/{id}', [MonitorController::class, 'getHistoryItem']);
+    Route::delete('/{id}', [MonitorController::class, 'deleteHistoryItem']);
+    Route::delete('/', [MonitorController::class, 'clearHistory']);
+});
+
 
