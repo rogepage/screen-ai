@@ -28,6 +28,7 @@ return [
     */
     'monitor' => [
         'default_interval_ms' => 1000,
+        'change_threshold' => (float) env('SCREEN_CHANGE_THRESHOLD', 0.05),
         'storage_path' => storage_path('app/captures'),
     ],
 ];

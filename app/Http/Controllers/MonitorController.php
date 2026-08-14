@@ -114,10 +114,13 @@ class MonitorController extends Controller
 
         try {
             $captureResult = $this->captureService->captureRegion($region);
+            $hasChanged = $this->monitorService->processCapture($captureResult);
 
             return response()->json([
                 'message' => 'Frame capturado com sucesso',
-                'capture' => $captureResult->toArray(),
+                'capture' => array_merge($captureResult->toArray(), [
+                    'has_changed' => $hasChanged,
+                ]),
             ]);
         } catch (\Throwable $e) {
             return response()->json([

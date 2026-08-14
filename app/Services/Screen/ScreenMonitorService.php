@@ -8,14 +8,43 @@ use App\Events\MonitorPaused;
 use App\Events\MonitorStarted;
 use App\Events\MonitorStopped;
 
+use App\DTO\CaptureResultDTO;
+use App\Events\ScreenChanged;
+
 class ScreenMonitorService
 {
     private MonitorState $state = MonitorState::STOPPED;
     private ?MonitorConfigDTO $currentConfig = null;
+    private ?CaptureResultDTO $lastCapture = null;
+
+    public function __construct(
+        private readonly ?ChangeDetectorInterface $changeDetector = null
+    ) {}
 
     public function getState(): MonitorState
     {
         return $this->state;
+    }
+
+    public function getLastCapture(): ?CaptureResultDTO
+    {
+        return $this->lastCapture;
+    }
+
+    public function processCapture(CaptureResultDTO $capture): bool
+    {
+        $detector = $this->changeDetector ?? app(ChangeDetectorInterface::class);
+        $previousPath = $this->lastCapture?->filePath;
+
+        $hasChanged = $detector->hasChanged($capture->filePath, $previousPath);
+
+        if ($hasChanged) {
+            $this->lastCapture = $capture;
+            ScreenChanged::dispatch($capture);
+            return true;
+        }
+
+        return false;
     }
 
     public function getConfig(): ?MonitorConfigDTO

@@ -15,7 +15,12 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(\App\Services\Screen\ScreenMonitorService::class);
         $this->app->bind(
             \App\Services\Screen\ChangeDetectorInterface::class,
-            \App\Services\Screen\MockChangeDetector::class
+            function ($app) {
+                if ($app->environment('testing')) {
+                    return new \App\Services\Screen\MockChangeDetector();
+                }
+                return new \App\Services\Screen\PerceptualChangeDetector();
+            }
         );
 
         $this->app->bind(

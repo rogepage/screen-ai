@@ -62,3 +62,16 @@ Uma fase somente está concluída quando:
 - erros tratados;
 - aplicação inicia;
 - documentação atualizada.
+
+## Controle de fases
+
+O agente nunca deve implementar funcionalidades de fases futuras.
+
+Se uma implementação atual exigir antecipar uma decisão de uma fase futura:
+
+1. identificar a dependência;
+2. explicar o problema;
+3. propor alternativas;
+4. aguardar aprovação.
+
+O agente nunca deve marcar uma fase como CONCLUÍDA sem aprovação explícita do usuário.
