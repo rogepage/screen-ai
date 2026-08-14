@@ -11,6 +11,10 @@ Route::get('/selection', function () {
     return view('selection');
 });
 
+Route::get('/overlay', function () {
+    return view('overlay');
+});
+
 Route::prefix('api/monitor')->group(function () {
     Route::get('/state', [MonitorController::class, 'getState']);
     Route::get('/region', [MonitorController::class, 'getRegion']);
@@ -31,4 +35,7 @@ Route::prefix('api/history')->group(function () {
     Route::delete('/', [MonitorController::class, 'clearHistory']);
 });
 
-
+Route::prefix('api/native')->group(function () {
+    Route::post('/overlay/toggle', [MonitorController::class, 'toggleOverlay']);
+    Route::get('/status', [MonitorController::class, 'getNativeStatus']);
+});

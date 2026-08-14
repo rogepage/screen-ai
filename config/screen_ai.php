@@ -51,4 +51,24 @@ return [
         'default_format' => env('IMAGE_DEFAULT_FORMAT', 'png'),
         'storage_path' => storage_path('app/processed_captures'),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Configurações Nativas do macOS (Fase 11)
+    |--------------------------------------------------------------------------
+    |
+    | Configurações para a camada nativa, Overlay flutuante e Atalhos Globais.
+    |
+    */
+    'native' => [
+        'overlay_enabled' => (bool) env('OVERLAY_ENABLED', true),
+        'overlay_position' => env('OVERLAY_POSITION', 'bottom-right'),
+        'global_shortcuts_enabled' => (bool) env('GLOBAL_SHORTCUTS_ENABLED', true),
+        'shortcuts' => [
+            'toggle_monitor' => env('SHORTCUT_TOGGLE_MONITOR', 'CmdOrCtrl+Shift+S'),
+            'toggle_pause' => env('SHORTCUT_TOGGLE_PAUSE', 'CmdOrCtrl+Shift+P'),
+            'analyze_now' => env('SHORTCUT_ANALYZE_NOW', 'CmdOrCtrl+Shift+A'),
+            'toggle_overlay' => env('SHORTCUT_TOGGLE_OVERLAY', 'CmdOrCtrl+Shift+O'),
+        ],
+    ],
 ];

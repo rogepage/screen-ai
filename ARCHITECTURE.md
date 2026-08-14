@@ -97,6 +97,36 @@ Concrete Provider    EloquentAnalysisHistoryRepository
                      SQLite Database
 ```
 
+## Experiência Nativa do macOS (Fase 11)
+
+A camada nativa integra o Screen AI ao ecossistema do macOS via NativePHP 2.2 Desktop:
+
+```text
+                 macOS
+                   │
+        ┌──────────┴──────────┐
+        │                     │
+   Global Shortcuts        Overlay Window (/overlay)
+   (⌘+Shift+S/P/A/O)       MenuBar (Status & Menu)
+        │                     │
+        └──────────┬──────────┘
+                   │
+                   ▼
+            NativeBridgeService
+                   │
+                   ▼
+       ┌───────────┴───────────┐
+       ▼                       ▼
+ScreenMonitorService      AnalysisService
+       │                       │
+       ▼                       ▼
+Capture Pipeline          AIManagerService
+```
+
+- **Atalhos Globais**: Registro resiliente via `GlobalShortcut` com tolerância a conflitos.
+- **Overlay Flutuante**: Janela compacta e translúcida posicionada fora da área monitorada (com detecção de colisão anti-loop).
+- **MenuBar**: Ícone e menu contextual rápido no topo do macOS.
+
 ## Fases de Desenvolvimento
 
 - FASE 0  → Ambiente (CONCLUÍDA)
@@ -108,9 +138,9 @@ Concrete Provider    EloquentAnalysisHistoryRepository
 - FASE 6  → Processamento da imagem (CONCLUÍDA)
 - FASE 7  → Integração com IA (CONCLUÍDA)
 - FASE 8  → Modos de análise (CONCLUÍDA)
-- FASE 9  → Histórico (EM ANDAMENTO)
-- FASE 10 → UX
-- FASE 11 → Atalhos globais
+- FASE 9  → Histórico (CONCLUÍDA)
+- FASE 10 → Monitoramento Contínuo (CONCLUÍDA)
+- FASE 11 → Experiência Nativa do macOS (EM ANDAMENTO)
 - FASE 12 → Overlay
 - FASE 13 → Otimização
 - FASE 14 → Distribuição

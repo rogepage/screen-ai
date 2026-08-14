@@ -17,6 +17,7 @@ use InvalidArgumentException;
 use App\Enums\AnalysisStatus;
 use App\Services\AI\AnalysisHistoryService;
 use App\Services\AI\AnalysisService;
+use App\Services\Native\NativeBridgeService;
 use App\Services\Screen\ImageProcessorInterface;
 
 class MonitorController extends Controller
@@ -28,7 +29,8 @@ class MonitorController extends Controller
         private readonly AiManagerService $aiManagerService,
         private readonly ImageProcessorInterface $imageProcessor,
         private readonly AnalysisService $analysisService,
-        private readonly AnalysisHistoryService $historyService
+        private readonly AnalysisHistoryService $historyService,
+        private readonly NativeBridgeService $nativeBridge
     ) {}
 
     public function getState(): JsonResponse
@@ -227,6 +229,21 @@ class MonitorController extends Controller
         $this->historyService->clearHistory();
 
         return response()->json(['message' => 'Todo o histórico de análises foi limpo com sucesso.']);
+    }
+
+    public function toggleOverlay(): JsonResponse
+    {
+        $isOpen = $this->nativeBridge->toggleOverlay();
+
+        return response()->json([
+            'message' => $isOpen ? 'Overlay aberto com sucesso' : 'Overlay fechado',
+            'overlay_open' => $isOpen,
+        ]);
+    }
+
+    public function getNativeStatus(): JsonResponse
+    {
+        return response()->json($this->nativeBridge->getNativeStatus());
     }
 }
 

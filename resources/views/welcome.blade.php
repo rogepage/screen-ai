@@ -253,6 +253,32 @@
         </div>
 
         <div class="card">
+            <h2>Experiência Nativa do macOS (Fase 11)</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                <div style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px;">
+                    <div style="font-size: 12px; font-weight: 700; color: #38bdf8; margin-bottom: 6px;">ATALHOS GLOBAIS ATIVOS</div>
+                    <ul style="margin: 0; padding-left: 16px; font-size: 13px; color: #e2e8f0; line-height: 1.6;">
+                        <li><kbd style="background: var(--border-color); padding: 2px 5px; border-radius: 3px;">⌘ + Shift + S</kbd> : Iniciar / Parar</li>
+                        <li><kbd style="background: var(--border-color); padding: 2px 5px; border-radius: 3px;">⌘ + Shift + P</kbd> : Pausar / Resumir</li>
+                        <li><kbd style="background: var(--border-color); padding: 2px 5px; border-radius: 3px;">⌘ + Shift + A</kbd> : Analisar Agora</li>
+                        <li><kbd style="background: var(--border-color); padding: 2px 5px; border-radius: 3px;">⌘ + Shift + O</kbd> : Alternar Overlay</li>
+                    </ul>
+                </div>
+                <div style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <div style="font-size: 12px; font-weight: 700; color: #38bdf8; margin-bottom: 6px;">OVERLAY FLUTUANTE DISCRETO</div>
+                        <div style="font-size: 13px; color: var(--muted-text); line-height: 1.4;">
+                            Janela nativa translúcida com indicador de status em tempo real e proteção anti-loop de captura.
+                        </div>
+                    </div>
+                    <div class="btn-group" style="margin: 0; margin-top: 10px;">
+                        <button class="btn-secondary" onclick="openFloatingOverlay()">Abrir Janela de Overlay</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                 <h2 style="margin: 0;">Histórico de Análises (Fase 9)</h2>
                 <div class="btn-group" style="margin: 0;">
@@ -647,6 +673,11 @@
             } catch (e) {
                 log('Erro ao limpar histórico: ' + e.message);
             }
+        }
+
+        function openFloatingOverlay() {
+            window.open('/overlay', 'ScreenAIOverlay', 'width=360,height=180,resizable=no,scrollbars=no');
+            log('Overlay flutuante aberto com sucesso.');
         }
 
         fetchState();

@@ -74,6 +74,8 @@ class AppServiceProvider extends ServiceProvider
         );
 
         $this->app->singleton(\App\Services\AI\AnalysisHistoryService::class);
+
+        $this->app->singleton(\App\Services\Native\NativeBridgeService::class);
     }
 
     /**
@@ -81,7 +83,22 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        \Illuminate\Support\Facades\Event::listen(
+            \App\Events\Native\ToggleMonitorShortcutPressed::class,
+            [\App\Listeners\HandleNativeShortcuts::class, 'handle']
+        );
+        \Illuminate\Support\Facades\Event::listen(
+            \App\Events\Native\TogglePauseShortcutPressed::class,
+            [\App\Listeners\HandleNativeShortcuts::class, 'handle']
+        );
+        \Illuminate\Support\Facades\Event::listen(
+            \App\Events\Native\AnalyzeNowShortcutPressed::class,
+            [\App\Listeners\HandleNativeShortcuts::class, 'handle']
+        );
+        \Illuminate\Support\Facades\Event::listen(
+            \App\Events\Native\ToggleOverlayShortcutPressed::class,
+            [\App\Listeners\HandleNativeShortcuts::class, 'handle']
+        );
     }
 }
 
