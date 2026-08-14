@@ -33,6 +33,11 @@ class AppServiceProvider extends ServiceProvider
             }
         );
 
+        $this->app->bind(
+            \App\Services\Screen\ImageProcessorInterface::class,
+            \App\Services\Screen\DefaultImageProcessor::class
+        );
+
         $this->app->singleton(\App\Services\AI\MockAiProvider::class);
         $this->app->bind(
             \App\Services\AI\AiProviderInterface::class,

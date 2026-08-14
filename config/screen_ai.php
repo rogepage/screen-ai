@@ -31,4 +31,20 @@ return [
         'change_threshold' => (float) env('SCREEN_CHANGE_THRESHOLD', 0.05),
         'storage_path' => storage_path('app/captures'),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Configurações de Processamento de Imagem (Fase 6)
+    |--------------------------------------------------------------------------
+    |
+    | Limites e parâmetros de normalização para o Image Processor.
+    |
+    */
+    'image' => [
+        'max_width' => (int) env('IMAGE_MAX_WIDTH', 2048),
+        'max_height' => (int) env('IMAGE_MAX_HEIGHT', 2048),
+        'max_file_size' => (int) env('IMAGE_MAX_FILE_SIZE', 5242880), // 5MB em bytes
+        'default_format' => env('IMAGE_DEFAULT_FORMAT', 'png'),
+        'storage_path' => storage_path('app/processed_captures'),
+    ],
 ];
