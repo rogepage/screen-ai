@@ -149,6 +149,9 @@
             color: #22c55e;
             word-break: break-all;
         }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -223,6 +226,13 @@
             <div id="lastAnalysisCard" style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 12px; margin-top: 10px;">
                 <div style="font-size: 11px; font-weight: 700; color: #38bdf8; text-transform: uppercase; margin-bottom: 6px;" id="lastAnalysisHeader">Última Resposta da IA</div>
                 <div id="analysisStatus" style="font-size: 12px; color: var(--muted-text); margin-bottom: 6px; display: none;"></div>
+
+                <!-- Loading state -->
+                <div id="analysisLoading" style="display: none; align-items: center; gap: 10px; padding: 8px 0;">
+                    <div id="loadingSpinner" style="width: 18px; height: 18px; border: 2px solid #1e40af; border-top-color: #38bdf8; border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0;"></div>
+                    <span style="font-size: 13px; color: #94a3b8;">Analisando imagem com IA<span id="loadingDots">...</span></span>
+                </div>
+
                 <div id="analysisContent" style="font-size: 13px; color: #f1f5f9; line-height: 1.5; white-space: pre-wrap;">Aguardando captura de tela no Desktop (Cmd+Shift+4)...</div>
             </div>
         </div>
@@ -488,11 +498,30 @@
             }
         }
 
+        let isProcessingPrints = false;
+
         async function checkDesktopPrintsNow() {
-            const actionType = document.getElementById('actionType').value;
-            const instruction = document.getElementById('userInstruction')?.value || '';
+            if (isProcessingPrints) return;
 
             try {
+                // 1. Verificação ultrarrápida se há print pendente no Desktop
+                const checkRes = await fetch('/api/monitor/check-pending');
+                const checkData = await checkRes.json();
+
+                if (!checkData.has_pending) {
+                    return;
+                }
+
+                // 2. Novo print detectado! Ativa o estado visual de processamento IMEDIATAMENTE
+                isProcessingPrints = true;
+                const fileName = checkData.files?.[0] || 'Captura de Tela';
+                setLoadingState(true, fileName);
+                log(`📸 Novo print detectado (${fileName}). Enviando para análise da IA...`);
+
+                // 3. Executa o ciclo de análise com a IA
+                const actionType = document.getElementById('actionType').value;
+                const instruction = document.getElementById('userInstruction')?.value || '';
+
                 const res = await fetch('/api/monitor/watch-cycle', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -505,8 +534,8 @@
                 const data = await res.json();
                 if (data.detected && data.results && data.results.length > 0) {
                     for (const item of data.results) {
-                        log(`📸 [Print Detectado] ${item.file} -> Analisado (${item.action}) em ${item.duration_ms}ms`);
-                        
+                        log(`✅ [Análise Concluída] ${item.file} -> ${item.action} (${item.duration_ms}ms)`);
+
                         const statusBox = document.getElementById('analysisStatus');
                         const contentBox = document.getElementById('analysisContent');
                         statusBox.style.display = 'block';
@@ -516,7 +545,64 @@
                     loadHistory(1);
                 }
             } catch (e) {
-                // Silencioso
+                log('Erro no ciclo de monitoramento: ' + e.message);
+            } finally {
+                isProcessingPrints = false;
+                setLoadingState(false);
+            }
+        }
+
+        function setLoadingState(isLoading, fileName) {
+            const loading = document.getElementById('analysisLoading');
+            const content = document.getElementById('analysisContent');
+            const status = document.getElementById('analysisStatus');
+            const header = document.getElementById('lastAnalysisHeader');
+            const card = document.getElementById('lastAnalysisCard');
+            const badge = document.getElementById('watcherStatusBadge');
+
+            if (isLoading) {
+                if (loading) loading.style.display = 'flex';
+                if (content) content.style.display = 'none';
+                if (status) status.style.display = 'none';
+                if (card) {
+                    card.style.borderColor = '#38bdf8';
+                    card.style.boxShadow = '0 0 12px rgba(56, 189, 248, 0.25)';
+                }
+                if (header) {
+                    header.style.color = '#38bdf8';
+                    header.innerText = '⏳ Processando com IA...';
+                }
+                if (badge && fileName) {
+                    badge.innerText = `🔄 PROCESSANDO: ${fileName.substring(0, 22)}...`;
+                    badge.style.color = '#38bdf8';
+                }
+                // Anima os pontos
+                let dots = 0;
+                if (window._loadingDotsTimer) clearInterval(window._loadingDotsTimer);
+                window._loadingDotsTimer = setInterval(() => {
+                    dots = (dots + 1) % 4;
+                    const el = document.getElementById('loadingDots');
+                    if (el) el.innerText = '.'.repeat(dots + 1);
+                }, 400);
+            } else {
+                if (window._loadingDotsTimer) {
+                    clearInterval(window._loadingDotsTimer);
+                    window._loadingDotsTimer = null;
+                }
+                if (loading) loading.style.display = 'none';
+                if (content) content.style.display = 'block';
+                if (card) {
+                    card.style.borderColor = 'var(--border-color)';
+                    card.style.boxShadow = '';
+                }
+                if (header) {
+                    header.style.color = '#38bdf8';
+                    header.innerText = 'Última Resposta da IA';
+                }
+                if (badge && badge.innerText.startsWith('🔄')) {
+                    badge.innerText = '🟢 ESCUTANDO PRINTS (Cmd+Shift+4)';
+                    badge.style.color = '#22c55e';
+                }
             }
         }
 
@@ -527,7 +613,7 @@
 
             if (mode === 'desktop') {
                 if (desktopWatcherTimer) clearInterval(desktopWatcherTimer);
-                desktopWatcherTimer = setInterval(checkDesktopPrintsNow, 1000);
+                desktopWatcherTimer = setInterval(checkDesktopPrintsNow, 1500);
                 badge.innerText = '🟢 ESCUTANDO PRINTS (Cmd+Shift+4)';
                 badge.style.color = '#22c55e';
                 log('Monitor de Desktop iniciado. Tire um print com Cmd+Shift+4 para analisar automaticamente!');
@@ -597,10 +683,9 @@
             const instruction = document.getElementById('userInstruction').value;
 
             const statusBox = document.getElementById('analysisStatus');
-            const statusText = document.getElementById('analysisStatusText');
+            const contentBox = document.getElementById('analysisContent');
 
-            statusBox.style.display = 'block';
-            statusText.innerText = 'Analisando...';
+            setLoadingState(true, 'Captura Atual');
             log(`Iniciando análise [Modo: ${actionType}, Idioma: ${language}]...`);
 
             try {
@@ -616,18 +701,35 @@
                 const data = await res.json();
 
                 if (res.ok && data.response && data.response.success) {
-                    statusText.innerText = 'Concluído';
+                    if (statusBox) {
+                        statusBox.style.display = 'block';
+                        statusBox.innerText = `[SUCESSO] Provedor: ${data.response.provider} | Modelo: ${data.response.model}`;
+                    }
+                    if (contentBox) {
+                        contentBox.innerText = data.response.text;
+                    }
                     log(`[Resposta IA — ${data.response.provider}] ${data.response.text}`);
                     loadHistory(1);
                 } else {
                     const errorMsg = data.error || (data.response ? data.response.error_message : 'Erro desconhecido');
-                    statusText.innerText = 'Falha na Análise';
+                    if (statusBox) {
+                        statusBox.style.display = 'block';
+                        statusBox.innerText = `[FALHA] Não foi possível analisar`;
+                    }
+                    if (contentBox) {
+                        contentBox.innerText = errorMsg;
+                    }
                     log(`[Erro IA] ${errorMsg}`);
                     loadHistory(1);
                 }
             } catch (e) {
-                statusText.innerText = 'Erro de Conexão';
+                if (statusBox) {
+                    statusBox.style.display = 'block';
+                    statusBox.innerText = `[ERRO] Falha de conexão`;
+                }
                 log('Erro na análise: ' + e.message);
+            } finally {
+                setLoadingState(false);
             }
         }
 

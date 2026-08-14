@@ -97,10 +97,17 @@ class GeminiAiProvider implements AiProviderInterface
             $httpClient = Http::timeout($this->timeout);
 
             if ($this->maxRetries > 0) {
-                // Executa retry estritamente em caso de erros de conexão ou HTTP 5xx
-                $httpClient->retry($this->maxRetries, 200, function (Throwable $exception) {
+                // Executa retry em caso de erros de conexão, HTTP 5xx e HTTP 429 (rate limit)
+                $retryAttempt = 0;
+                $httpClient->retry($this->maxRetries, function (int $attempt) use (&$retryAttempt) {
+                    $retryAttempt = $attempt;
+                    // Backoff exponencial: 2s na 1ª tentativa, 5s na 2ª
+                    return $attempt === 1 ? 2000 : 5000;
+                }, function (Throwable $exception) {
                     if ($exception instanceof RequestException) {
-                        return $exception->response?->status() >= 500;
+                        $status = $exception->response?->status();
+                        // Retry em rate limit (429) e erros de servidor (5xx)
+                        return $status === 429 || $status >= 500;
                     }
 
                     return true;

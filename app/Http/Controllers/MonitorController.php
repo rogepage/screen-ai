@@ -27,6 +27,7 @@ use App\Services\Settings\AppSettingsService;
 use App\Services\Startup\StartupService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
 class MonitorController extends Controller
@@ -417,9 +418,31 @@ class MonitorController extends Controller
         ]);
     }
 
+    public function checkPendingPrints(): JsonResponse
+    {
+        $allFiles = $this->watcherService->scanNewScreenshots();
+
+        $newFiles = array_values(array_filter($allFiles, function (string $path) {
+            return ! DB::table('processed_screenshots')->where('file_path', $path)->exists();
+        }));
+
+        return response()->json([
+            'has_pending' => ! empty($newFiles),
+            'count' => count($newFiles),
+            'files' => array_map('basename', $newFiles),
+        ]);
+    }
+
     public function executeWatcherCycle(Request $request): JsonResponse
     {
-        $newFiles = $this->watcherService->scanNewScreenshots();
+        $allFiles = $this->watcherService->scanNewScreenshots();
+
+        // Filtra apenas arquivos ainda não processados usando o banco de dados
+        // como memória persistente entre requests (PHP é stateless)
+        $newFiles = array_values(array_filter($allFiles, function (string $path) {
+            return ! DB::table('processed_screenshots')->where('file_path', $path)->exists();
+        }));
+
         if (empty($newFiles)) {
             return response()->json([
                 'detected' => false,
@@ -432,9 +455,21 @@ class MonitorController extends Controller
         $actionString = $request->input('action', 'interpret');
         $customPrompt = $request->input('custom_prompt');
         $actionType = ActionType::tryFrom($actionString) ?? ActionType::INTERPRET;
+        // Delay entre chamadas sequenciais para evitar rate limit (429)
+        $delayBetweenCallsSeconds = 5;
 
-        foreach ($newFiles as $filePath) {
+        foreach ($newFiles as $index => $filePath) {
+            // Registra no banco ANTES de processar para bloquear chamadas concorrentes
+            DB::table('processed_screenshots')->insertOrIgnore([
+                'file_path' => $filePath,
+                'processed_at' => now(),
+            ]);
             $this->watcherService->markAsProcessed($filePath);
+
+            // A partir do 2º arquivo, aguarda para não saturar o rate limit da API
+            if ($index > 0) {
+                sleep($delayBetweenCallsSeconds);
+            }
 
             try {
                 $captureDto = new CaptureResultDTO(

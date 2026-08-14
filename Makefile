@@ -5,7 +5,7 @@
 APP_NAME = Screen AI
 APP_VERSION = 1.0.0
 DIST_DIR = nativephp/electron/dist
-APP_BUNDLE = $(DIST_DIR)/mac/Laravel.app
+APP_BUNDLE = $(DIST_DIR)/mac/$(APP_NAME).app
 DMG_FILE = $(DIST_DIR)/Screen-AI-$(APP_VERSION)-x64.dmg
 CHECKSUM_FILE = $(DIST_DIR)/Screen-AI-$(APP_VERSION)-x64.dmg.sha256
 
