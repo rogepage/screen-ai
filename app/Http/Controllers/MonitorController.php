@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\DTO\AiPromptDTO;
 use App\DTO\AppSettingsDTO;
+use App\DTO\CaptureResultDTO;
 use App\DTO\MonitorConfigDTO;
 use App\DTO\ScreenRegionDTO;
 use App\Enums\ActionType;
@@ -17,6 +18,7 @@ use App\Services\Native\NativeBridgeService;
 use App\Services\Native\PermissionServiceInterface;
 use App\Services\Observability\HealthCheckService;
 use App\Services\Screen\ContinuousMonitorService;
+use App\Services\Screen\DesktopScreenshotWatcherService;
 use App\Services\Screen\ImageProcessorInterface;
 use App\Services\Screen\ScreenCaptureInterface;
 use App\Services\Screen\ScreenMonitorService;
@@ -44,7 +46,8 @@ class MonitorController extends Controller
         private readonly PermissionServiceInterface $permissionService,
         private readonly HealthCheckService $healthService,
         private readonly DiagnosticService $diagnosticService,
-        private readonly CleanupService $cleanupService
+        private readonly CleanupService $cleanupService,
+        private readonly DesktopScreenshotWatcherService $watcherService
     ) {}
 
     public function getState(): JsonResponse
@@ -389,6 +392,87 @@ class MonitorController extends Controller
         return response()->json([
             'message' => "Limpeza de manutenção concluída ({$deleted} arquivos removidos).",
             'deleted_count' => $deleted,
+        ]);
+    }
+
+    public function getWatcherConfig(): JsonResponse
+    {
+        return response()->json([
+            'watch_folder' => $this->watcherService->getWatchFolder(),
+            'accessible' => $this->watcherService->isFolderAccessible(),
+        ]);
+    }
+
+    public function updateWatcherConfig(Request $request): JsonResponse
+    {
+        $folder = $request->input('watch_folder');
+        if ($folder) {
+            $this->watcherService->setWatchFolder($folder);
+        }
+
+        return response()->json([
+            'message' => 'Configuração da pasta atualizada.',
+            'watch_folder' => $this->watcherService->getWatchFolder(),
+            'accessible' => $this->watcherService->isFolderAccessible(),
+        ]);
+    }
+
+    public function executeWatcherCycle(Request $request): JsonResponse
+    {
+        $newFiles = $this->watcherService->scanNewScreenshots();
+        if (empty($newFiles)) {
+            return response()->json([
+                'detected' => false,
+                'message' => 'Nenhum novo print detectado.',
+                'results' => [],
+            ]);
+        }
+
+        $results = [];
+        $actionString = $request->input('action', 'interpret');
+        $customPrompt = $request->input('custom_prompt');
+        $actionType = ActionType::tryFrom($actionString) ?? ActionType::INTERPRET;
+
+        foreach ($newFiles as $filePath) {
+            $this->watcherService->markAsProcessed($filePath);
+
+            try {
+                $captureDto = new CaptureResultDTO(
+                    filePath: $filePath,
+                    hash: @md5_file($filePath) ?: '',
+                    timestamp: @filemtime($filePath) ?: time(),
+                    hasChanged: true
+                );
+
+                $processed = $this->imageProcessor->process($captureDto);
+                $analysisResult = $this->analysisService->analyze(
+                    image: $processed,
+                    action: $actionType,
+                    userInstruction: $customPrompt
+                );
+
+                $results[] = [
+                    'file' => basename($filePath),
+                    'file_path' => $filePath,
+                    'status' => $analysisResult->success ? 'completed' : 'failed',
+                    'content' => $analysisResult->text,
+                    'duration_ms' => $analysisResult->metadata['duration_ms'] ?? 0,
+                    'action' => $actionType->value,
+                ];
+            } catch (\Throwable $e) {
+                $results[] = [
+                    'file' => basename($filePath),
+                    'file_path' => $filePath,
+                    'status' => 'failed',
+                    'error' => $e->getMessage(),
+                ];
+            }
+        }
+
+        return response()->json([
+            'detected' => true,
+            'message' => count($results).' novo(s) print(s) processado(s).',
+            'results' => $results,
         ]);
     }
 }

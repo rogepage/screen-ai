@@ -173,13 +173,37 @@
             <button class="btn-secondary" style="font-size: 12px; padding: 4px 10px;" onclick="openSystemSettings()">Abrir Ajustes do macOS</button>
         </div>
 
+        <div class="card" style="border: 1px solid #38bdf8;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h2 style="margin: 0; color: #38bdf8;">📂 Monitor de Capturas do Desktop (macOS)</h2>
+                <span id="watcherStatusBadge" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-size: 11px; padding: 3px 8px; border-radius: 4px; font-weight: 600;">PRONTO</span>
+            </div>
+            <p style="font-size: 13px; color: var(--muted-text); margin-bottom: 12px;">
+                O Screen AI monitora a pasta <strong>/Users/roger/Desktop</strong>. Basta tirar um print com <strong>Cmd+Shift+4</strong> ou <strong>Cmd+Shift+3</strong> no macOS para que a IA analise automaticamente o conteúdo!
+            </p>
+            <div class="grid-2" style="margin-bottom: 12px;">
+                <div class="form-group">
+                    <label for="monitorMode">Modo de Operação:</label>
+                    <select id="monitorMode" onchange="toggleMonitorMode()">
+                        <option value="desktop" selected>📂 Monitorar Pasta Desktop (Recomendado - Cmd+Shift+4)</option>
+                        <option value="screen">🖥️ Captura Contínua de Região (ScreenCaptureKit)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="desktopFolderPath">Pasta Monitorada:</label>
+                    <input type="text" id="desktopFolderPath" value="/Users/roger/Desktop" />
+                </div>
+            </div>
+            <div class="btn-group">
+                <button class="btn-start" onclick="startMonitor()">▶ Iniciar Monitoramento</button>
+                <button class="btn-pause" onclick="pauseMonitor()">⏸ Pausar</button>
+                <button class="btn-stop" onclick="stopMonitor()">⏹ Parar</button>
+                <button class="btn-secondary" onclick="checkDesktopPrintsNow()">Verificar Prints Agora</button>
+            </div>
+        </div>
+
         <div class="card">
             <h2>Controle do Monitor</h2>
-            <div class="btn-group">
-                <button class="btn-start" onclick="startMonitor()">Iniciar Monitor</button>
-                <button class="btn-pause" onclick="pauseMonitor()">Pausar</button>
-                <button class="btn-stop" onclick="stopMonitor()">Parar</button>
-            </div>
             <div style="font-size: 13px; color: var(--muted-text);">
                 Provedor de IA Ativo: <strong>mock</strong> | Armazenamento de chaves: <strong>macOS Keychain (Produção)</strong>
             </div>
@@ -484,8 +508,65 @@
             }
         }
 
-        async function startMonitor() {
+        let desktopWatcherTimer = null;
+
+        function toggleMonitorMode() {
+            const mode = document.getElementById('monitorMode').value;
+            const badge = document.getElementById('watcherStatusBadge');
+            if (mode === 'desktop') {
+                badge.innerText = 'MODO DESKTOP ATIVO';
+                badge.style.color = '#38bdf8';
+            } else {
+                badge.innerText = 'MODO REGIÃO ATIVO';
+                badge.style.color = '#a855f7';
+            }
+        }
+
+        async function checkDesktopPrintsNow() {
             const actionType = document.getElementById('actionType').value;
+            const instruction = document.getElementById('userInstruction')?.value || '';
+
+            try {
+                const res = await fetch('/api/monitor/watch-cycle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: actionType,
+                        custom_prompt: instruction
+                    })
+                });
+
+                const data = await res.json();
+                if (data.detected && data.results && data.results.length > 0) {
+                    for (const item of data.results) {
+                        log(`📸 [Print Detectado] ${item.file} -> Analisado (${item.action}) em ${item.duration_ms}ms`);
+                        
+                        const statusBox = document.getElementById('analysisStatus');
+                        const contentBox = document.getElementById('analysisContent');
+                        statusBox.style.display = 'block';
+                        statusBox.innerText = `[${item.status.toUpperCase()}] Print: ${item.file} | Ação: ${item.action} | Duração: ${item.duration_ms}ms`;
+                        contentBox.innerText = item.content || item.error || 'Sem resposta gerada.';
+                    }
+                    loadHistory(1);
+                }
+            } catch (e) {
+                // Silencioso
+            }
+        }
+
+        async function startMonitor() {
+            const mode = document.getElementById('monitorMode').value;
+            const actionType = document.getElementById('actionType').value;
+            const badge = document.getElementById('watcherStatusBadge');
+
+            if (mode === 'desktop') {
+                if (desktopWatcherTimer) clearInterval(desktopWatcherTimer);
+                desktopWatcherTimer = setInterval(checkDesktopPrintsNow, 1000);
+                badge.innerText = '🟢 ESCUTANDO PRINTS (Cmd+Shift+4)';
+                badge.style.color = '#22c55e';
+                log('Monitor de Desktop iniciado. Tire um print com Cmd+Shift+4 para analisar automaticamente!');
+            }
+
             try {
                 const res = await fetch('/api/monitor/start', {
                     method: 'POST',
@@ -501,6 +582,14 @@
         }
 
         async function stopMonitor() {
+            if (desktopWatcherTimer) {
+                clearInterval(desktopWatcherTimer);
+                desktopWatcherTimer = null;
+            }
+            const badge = document.getElementById('watcherStatusBadge');
+            badge.innerText = 'PARADO';
+            badge.style.color = '#ef4444';
+
             try {
                 const res = await fetch('/api/monitor/stop', { method: 'POST' });
                 const data = await res.json();
@@ -512,6 +601,14 @@
         }
 
         async function pauseMonitor() {
+            if (desktopWatcherTimer) {
+                clearInterval(desktopWatcherTimer);
+                desktopWatcherTimer = null;
+            }
+            const badge = document.getElementById('watcherStatusBadge');
+            badge.innerText = 'PAUSADO';
+            badge.style.color = '#eab308';
+
             try {
                 const res = await fetch('/api/monitor/pause', { method: 'POST' });
                 const data = await res.json();

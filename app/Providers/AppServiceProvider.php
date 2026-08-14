@@ -30,6 +30,7 @@ use App\Services\Screen\CaptureDebounceService;
 use App\Services\Screen\ChangeDetectorInterface;
 use App\Services\Screen\ContinuousMonitorService;
 use App\Services\Screen\DefaultImageProcessor;
+use App\Services\Screen\DesktopScreenshotWatcherService;
 use App\Services\Screen\ImageProcessorInterface;
 use App\Services\Screen\MacScreenCaptureService;
 use App\Services\Screen\MockChangeDetector;
@@ -147,6 +148,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(HealthCheckService::class);
         $this->app->singleton(CleanupService::class);
         $this->app->singleton(DiagnosticService::class);
+
+        $this->app->singleton(DesktopScreenshotWatcherService::class);
 
         $this->app->singleton(ContinuousMonitorService::class);
     }

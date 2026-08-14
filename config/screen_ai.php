@@ -79,4 +79,24 @@ return [
             'toggle_overlay' => env('SHORTCUT_TOGGLE_OVERLAY', 'CmdOrCtrl+Shift+O'),
         ],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Monitoramento de Pasta de Capturas de Tela (Desktop Watcher)
+    |--------------------------------------------------------------------------
+    |
+    | Escuta a pasta do Desktop por novas capturas manuais (Cmd+Shift+4).
+    |
+    */
+    'watcher' => [
+        'enabled' => (bool) env('SCREEN_WATCHER_ENABLED', true),
+        'watch_folder' => env('SCREEN_WATCH_FOLDER', env('HOME', '/Users/roger').'/Desktop'),
+        'patterns' => [
+            'Captura de Tela*.png',
+            'Captura de Tela*.jpg',
+            'Screenshot*.png',
+            'Screenshot*.jpg',
+        ],
+        'stability_delay_ms' => 300,
+    ],
 ];

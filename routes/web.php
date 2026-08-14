@@ -34,6 +34,9 @@ Route::prefix('api/monitor')->group(function () {
     Route::post('/capture', [MonitorController::class, 'captureFrame']);
     Route::get('/pipeline', [MonitorController::class, 'getPipelineStats']);
     Route::post('/cycle', [MonitorController::class, 'executeCycle']);
+    Route::post('/watch-cycle', [MonitorController::class, 'executeWatcherCycle']);
+    Route::get('/watch-config', [MonitorController::class, 'getWatcherConfig']);
+    Route::post('/watch-config', [MonitorController::class, 'updateWatcherConfig']);
 });
 
 Route::post('/api/ai/analyze', [MonitorController::class, 'analyze']);

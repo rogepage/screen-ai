@@ -42,22 +42,37 @@ Você pode escolher entre:
 
 ## 3. Guia de Uso no Dia a Dia
 
-### 3.1 Selecionando a Área de Monitoramento
-1. No painel principal ou no menu, clique em **Selecionar Região**.
-2. A tela de seleção será aberta. Clique e arraste o mouse sobre a área que deseja monitorar.
-3. Clique em **Confirmar Seleção**. As coordenadas serão salvas automaticamente.
+O Screen AI suporta dois modos práticos de operação:
 
-### 3.2 Iniciando o Monitoramento Contínuo
-1. Defina a ação desejada no painel (ex: *Explicar*, *Traduzir*, *Responder*).
-2. Clique no botão **Iniciar Monitor** (ou pressione o atalho `Cmd+Shift+M`).
-3. Sempre que houver uma alteração estável na área monitorada, o Screen AI capturará o frame, processará a imagem e exibirá a resposta da IA.
+### 3.1 Modo A: Monitor de Capturas do Desktop (Recomendado — Cmd+Shift+4)
+
+Neste modo, você não precisa configurar coordenadas de tela. Você tira prints normalmente com os atalhos nativos do macOS e o Screen AI detecta e analisa automaticamente:
+
+1. No painel principal, selecione **Modo de Operação: 📂 Monitorar Pasta Desktop**.
+2. A pasta padrão monitorada é `/Users/roger/Desktop` (onde o macOS salva seus prints).
+3. Escolha a ação desejada no seletor (ex: *Explicar*, *Traduzir*, *Responder*, *Interpretar*).
+4. Clique em **Iniciar Monitoramento** (ou deixe rodando em segundo plano).
+5. A qualquer momento, pressione **`Cmd + Shift + 4`** no macOS para selecionar e fotografar qualquer parte da sua tela.
+6. O **Screen AI** detecta o novo arquivo salvo no Desktop, envia para a IA e exibe a resposta instantaneamente no painel e no histórico!
+
+---
+
+### 3.2 Modo B: Captura Contínua de Região (ScreenCaptureKit)
+
+Para monitoramento automatizado de uma janela ou região fixa:
+
+1. No painel principal, clique em **Selecionar Região**.
+2. Clique e arraste o mouse sobre a área que deseja monitorar e clique em **Confirmar Seleção**.
+3. Clique em **Iniciar Monitor**. A cada alteração estável na tela, o frame é analisado pela IA.
+
+---
 
 ### 3.3 Análise Sob Demanda (*Analyze Now*)
 Se você não deseja monitorar continuamente, mas quer analisar o que está na tela naquele momento exato:
 - Pressione o atalho global **`Cmd + Shift + A`** (ou clique em **Capturar e Analisar Agora** no painel).
 
 ### 3.4 Pausando e Retomando
-- Para pausar temporariamente o monitor sem perder a área selecionada: clique em **Pausar** ou pressione **`Cmd + Shift + P`**.
+- Para pausar temporariamente o monitor: clique em **Pausar** ou pressione **`Cmd + Shift + P`**.
 
 ---
 
