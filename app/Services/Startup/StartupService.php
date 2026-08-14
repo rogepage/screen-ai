@@ -17,7 +17,7 @@ class StartupService
 
     public function isFirstRun(): bool
     {
-        return !$this->settingsService->getSettings()->onboardingCompleted;
+        return ! $this->settingsService->getSettings()->onboardingCompleted;
     }
 
     public function checkStartupStatus(): array
@@ -27,7 +27,7 @@ class StartupService
         $region = $this->regionService->getRegion();
 
         return [
-            'is_first_run' => !$settings->onboardingCompleted,
+            'is_first_run' => ! $settings->onboardingCompleted,
             'onboarding_completed' => $settings->onboardingCompleted,
             'permission_status' => $permissionStatus->value,
             'permission_granted' => $permissionStatus === PermissionStatus::GRANTED,

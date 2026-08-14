@@ -62,3 +62,7 @@ Route::prefix('api/startup')->group(function () {
     Route::post('/onboarding/complete', [MonitorController::class, 'completeOnboarding']);
     Route::post('/permissions/open-settings', [MonitorController::class, 'openPermissionSettings']);
 });
+
+Route::get('/api/health', [MonitorController::class, 'getHealth']);
+Route::get('/api/diagnostics/export', [MonitorController::class, 'exportDiagnostics']);
+Route::post('/api/maintenance/cleanup', [MonitorController::class, 'cleanupTemporaryFiles']);

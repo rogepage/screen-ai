@@ -5,9 +5,9 @@ namespace Tests\Unit;
 use App\DTO\AiResponseDTO;
 use App\DTO\ProcessedImageDTO;
 use App\Enums\ActionType;
+use App\Services\AI\AiManagerService;
 use App\Services\AI\AnalysisService;
 use App\Services\AI\DefaultPromptBuilder;
-use App\Services\AI\AiManagerService;
 use App\Services\AI\MockAiProvider;
 use Tests\TestCase;
 
@@ -15,7 +15,7 @@ class AnalysisServiceTest extends TestCase
 {
     public function test_analysis_service_orchestrates_all_action_types(): void
     {
-        $mock = new MockAiProvider();
+        $mock = new MockAiProvider;
         $aiManager = new AiManagerService($mock);
         $promptBuilder = new DefaultPromptBuilder('pt-BR');
         $service = new AnalysisService($promptBuilder, $aiManager);

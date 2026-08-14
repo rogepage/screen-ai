@@ -13,7 +13,7 @@ class SettingsValidatorTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->validator = new SettingsValidator();
+        $this->validator = new SettingsValidator;
     }
 
     public function test_valid_settings_pass_validation(): void

@@ -184,6 +184,29 @@ A Fase 12 estabelece o fluxo de primeira execução e gestão segura de configur
 - **AppSettingsService & SettingsValidator**: Gestão persistente de configurações locais sem expor segredos.
 - **Onboarding Wizard**: Guia passo a passo de configuração para novos usuários.
 
+## Hardening, Observabilidade e Preparação para Release (Fase 13)
+
+A Fase 13 garante a resiliência operacional contínua e o diagnóstico seguro da aplicação:
+
+```text
+                                 PIPELINE CONTÍNUO
+                                         │
+                ┌────────────────────────┼────────────────────────┐
+                ▼                        ▼                        ▼
+      [ Correlation ID ]      [ Circuit Breaker ]       [ Cleanup Service ]
+    (Rastreamento de ciclo)   (Proteção contra falhas)   (Limpeza de temporários)
+                │                        │                        │
+                ▼                        ▼                        ▼
+      [ ObservabilityService ]  [ HealthCheckService ]  [ DiagnosticService ]
+        - Structured Logging       - Status: HEALTHY,      - Versões & Métricas
+        - Métricas de Latência       DEGRADED, ERROR       - Exportação Segura
+```
+
+- **Correlation IDs (`cid_...`)**: Rastreabilidade ponta a ponta em logs estruturados.
+- **AiCircuitBreakerService**: Proteção contra sobrecarga e falhas em cascata com transições `CLOSED` $\rightarrow$ `OPEN` $\rightarrow$ `HALF_OPEN`.
+- **HealthCheckService & DiagnosticService**: Avaliação de integridade em tempo real e exportação de relatórios sanitizados.
+- **CleanupService**: Remoção periódica e na inicialização de arquivos temporários de captura.
+
 ## Fases de Desenvolvimento
 
 - FASE 0  → Ambiente (CONCLUÍDA)
@@ -198,6 +221,6 @@ A Fase 12 estabelece o fluxo de primeira execução e gestão segura de configur
 - FASE 9  → Histórico (CONCLUÍDA)
 - FASE 10 → Monitoramento Contínuo (CONCLUÍDA)
 - FASE 11 → Experiência Nativa do macOS (CONCLUÍDA)
-- FASE 12 → Configurações e Onboarding (EM ANDAMENTO)
-- FASE 13 → Otimização
+- FASE 12 → Configurações e Onboarding (CONCLUÍDA)
+- FASE 13 → Hardening e Observabilidade (EM ANDAMENTO)
 - FASE 14 → Distribuição

@@ -4,6 +4,7 @@ namespace App\Services\Screen;
 
 use App\DTO\CaptureResultDTO;
 use App\DTO\MonitorConfigDTO;
+use App\DTO\ScreenRegionDTO;
 use App\Enums\MonitorState;
 use App\Events\MonitorPaused;
 use App\Events\MonitorStarted;
@@ -13,7 +14,9 @@ use App\Events\ScreenChanged;
 class ScreenMonitorService
 {
     private MonitorState $state = MonitorState::STOPPED;
+
     private ?MonitorConfigDTO $currentConfig = null;
+
     private ?CaptureResultDTO $lastCapture = null;
 
     public function __construct(
@@ -41,6 +44,7 @@ class ScreenMonitorService
         if ($hasChanged) {
             $this->lastCapture = $capture;
             ScreenChanged::dispatch($capture);
+
             return true;
         }
 
@@ -50,6 +54,7 @@ class ScreenMonitorService
     public function executeCycle(): ?CaptureResultDTO
     {
         $orchestrator = $this->continuousMonitor ?? app(ContinuousMonitorService::class);
+
         return $orchestrator->runCycle($this);
     }
 
@@ -60,7 +65,7 @@ class ScreenMonitorService
 
     public function start(?MonitorConfigDTO $config = null): void
     {
-        $this->currentConfig = $config ?? new MonitorConfigDTO();
+        $this->currentConfig = $config ?? new MonitorConfigDTO;
         $this->state = MonitorState::MONITORING;
 
         MonitorStarted::dispatch($this->currentConfig);
@@ -91,7 +96,7 @@ class ScreenMonitorService
         }
     }
 
-    public function updateRegion(\App\DTO\ScreenRegionDTO $region): void
+    public function updateRegion(ScreenRegionDTO $region): void
     {
         if ($this->currentConfig !== null) {
             $this->currentConfig = new MonitorConfigDTO(

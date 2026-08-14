@@ -18,7 +18,7 @@ class EloquentAnalysisHistoryRepositoryTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->repository = new EloquentAnalysisHistoryRepository();
+        $this->repository = new EloquentAnalysisHistoryRepository;
     }
 
     public function test_can_create_and_find_analysis_history(): void

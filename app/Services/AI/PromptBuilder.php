@@ -10,7 +10,7 @@ class PromptBuilder
     {
         $builder = app()->has(PromptBuilderInterface::class)
             ? app(PromptBuilderInterface::class)
-            : new DefaultPromptBuilder();
+            : new DefaultPromptBuilder;
 
         $lang = $language ?? ($prompt->options['language'] ?? null);
 

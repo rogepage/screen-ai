@@ -17,7 +17,7 @@ class AnalysisHistoryServiceTest extends TestCase
 
     public function test_records_successful_analysis(): void
     {
-        $repo = new EloquentAnalysisHistoryRepository();
+        $repo = new EloquentAnalysisHistoryRepository;
         $service = new AnalysisHistoryService($repo);
 
         $prompt = new AiPromptDTO(
@@ -43,7 +43,7 @@ class AnalysisHistoryServiceTest extends TestCase
 
     public function test_records_failed_analysis(): void
     {
-        $repo = new EloquentAnalysisHistoryRepository();
+        $repo = new EloquentAnalysisHistoryRepository;
         $service = new AnalysisHistoryService($repo);
 
         $prompt = new AiPromptDTO(actionType: ActionType::ANSWER);

@@ -19,7 +19,7 @@ class AnalysisOrchestrationTest extends TestCase
         parent::setUp();
         $this->tempDir = storage_path('framework/testing/analysis_orchestration_test');
 
-        if (!File::exists($this->tempDir)) {
+        if (! File::exists($this->tempDir)) {
             File::makeDirectory($this->tempDir, 0755, true);
         }
     }
@@ -35,7 +35,7 @@ class AnalysisOrchestrationTest extends TestCase
     public function test_complete_orchestration_pipeline_via_analysis_service(): void
     {
         // 1. Criar um frame capturado
-        $srcPath = $this->tempDir . '/frame.png';
+        $srcPath = $this->tempDir.'/frame.png';
         $img = imagecreatetruecolor(400, 300);
         $yellow = imagecolorallocate($img, 255, 255, 0);
         imagefill($img, 0, 0, $yellow);
@@ -77,7 +77,7 @@ class AnalysisOrchestrationTest extends TestCase
     public function test_analyze_endpoint_orchestrates_with_last_captured_frame(): void
     {
         // Registrar uma captura no ScreenMonitorService
-        $srcPath = $this->tempDir . '/last_frame.png';
+        $srcPath = $this->tempDir.'/last_frame.png';
         $img = imagecreatetruecolor(400, 300);
         $cyan = imagecolorallocate($img, 0, 255, 255);
         imagefill($img, 0, 0, $cyan);

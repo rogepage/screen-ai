@@ -10,9 +10,13 @@ use Illuminate\Support\Facades\File;
 class DefaultImageProcessor implements ImageProcessorInterface
 {
     private int $maxWidth;
+
     private int $maxHeight;
+
     private int $maxFileSize;
+
     private string $defaultFormat;
+
     private string $storageDir;
 
     public function __construct(
@@ -28,7 +32,7 @@ class DefaultImageProcessor implements ImageProcessorInterface
         $this->defaultFormat = strtolower($defaultFormat ?? config('screen_ai.image.default_format', 'png'));
         $this->storageDir = $storageDir ?? config('screen_ai.image.storage_path', storage_path('app/processed_captures'));
 
-        if (!File::exists($this->storageDir)) {
+        if (! File::exists($this->storageDir)) {
             File::makeDirectory($this->storageDir, 0755, true);
         }
     }
@@ -37,7 +41,7 @@ class DefaultImageProcessor implements ImageProcessorInterface
     {
         $startTime = microtime(true);
 
-        if (!File::exists($capture->filePath) || !is_readable($capture->filePath)) {
+        if (! File::exists($capture->filePath) || ! is_readable($capture->filePath)) {
             throw ImageProcessingException::fileNotFound();
         }
 
@@ -84,7 +88,7 @@ class DefaultImageProcessor implements ImageProcessorInterface
         }
 
         $fileName = sprintf('proc_%d_%s.%s', time(), uniqid(), $this->defaultFormat);
-        $processedPath = $this->storageDir . '/' . $fileName;
+        $processedPath = $this->storageDir.'/'.$fileName;
 
         $this->saveGdImage($finalImg, $processedPath, $this->defaultFormat);
 
@@ -141,7 +145,7 @@ class DefaultImageProcessor implements ImageProcessorInterface
 
     public function cleanupTemporaryImages(int $ttlSeconds = 300): void
     {
-        if (!File::exists($this->storageDir)) {
+        if (! File::exists($this->storageDir)) {
             return;
         }
 

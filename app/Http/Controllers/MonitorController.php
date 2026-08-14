@@ -3,27 +3,29 @@
 namespace App\Http\Controllers;
 
 use App\DTO\AiPromptDTO;
+use App\DTO\AppSettingsDTO;
 use App\DTO\MonitorConfigDTO;
-use App\Enums\ActionType;
 use App\DTO\ScreenRegionDTO;
+use App\Enums\ActionType;
+use App\Enums\AnalysisStatus;
 use App\Services\AI\AiManagerService;
+use App\Services\AI\AnalysisHistoryService;
+use App\Services\AI\AnalysisService;
+use App\Services\Diagnostics\DiagnosticService;
+use App\Services\Maintenance\CleanupService;
+use App\Services\Native\NativeBridgeService;
+use App\Services\Native\PermissionServiceInterface;
+use App\Services\Observability\HealthCheckService;
+use App\Services\Screen\ContinuousMonitorService;
+use App\Services\Screen\ImageProcessorInterface;
 use App\Services\Screen\ScreenCaptureInterface;
 use App\Services\Screen\ScreenMonitorService;
 use App\Services\Screen\ScreenRegionService;
+use App\Services\Settings\AppSettingsService;
+use App\Services\Startup\StartupService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
-
-use App\Enums\AnalysisStatus;
-use App\Services\AI\AnalysisHistoryService;
-use App\Services\AI\AnalysisService;
-use App\Services\Native\NativeBridgeService;
-use App\Services\Screen\ContinuousMonitorService;
-use App\Services\Native\PermissionServiceInterface;
-use App\Services\Settings\AppSettingsService;
-use App\Services\Startup\StartupService;
-use App\Services\Screen\ImageProcessorInterface;
-use App\DTO\AppSettingsDTO;
 
 class MonitorController extends Controller
 {
@@ -39,7 +41,10 @@ class MonitorController extends Controller
         private readonly ContinuousMonitorService $continuousMonitor,
         private readonly AppSettingsService $settingsService,
         private readonly StartupService $startupService,
-        private readonly PermissionServiceInterface $permissionService
+        private readonly PermissionServiceInterface $permissionService,
+        private readonly HealthCheckService $healthService,
+        private readonly DiagnosticService $diagnosticService,
+        private readonly CleanupService $cleanupService
     ) {}
 
     public function getState(): JsonResponse
@@ -143,7 +148,7 @@ class MonitorController extends Controller
             ]);
         } catch (\Throwable $e) {
             return response()->json([
-                'error' => 'Falha na captura: ' . $e->getMessage(),
+                'error' => 'Falha na captura: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -185,7 +190,7 @@ class MonitorController extends Controller
             ]);
         } catch (\Throwable $e) {
             return response()->json([
-                'error' => 'Falha ao analisar a imagem: ' . $e->getMessage(),
+                'error' => 'Falha ao analisar a imagem: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -215,7 +220,7 @@ class MonitorController extends Controller
     {
         $item = $this->historyService->getAnalysis($id);
 
-        if (!$item) {
+        if (! $item) {
             return response()->json(['error' => 'Registro de análise não encontrado.'], 404);
         }
 
@@ -226,7 +231,7 @@ class MonitorController extends Controller
     {
         $deleted = $this->historyService->deleteAnalysis($id);
 
-        if (!$deleted) {
+        if (! $deleted) {
             return response()->json(['error' => 'Registro não encontrado para exclusão.'], 404);
         }
 
@@ -303,7 +308,7 @@ class MonitorController extends Controller
         $dto = AppSettingsDTO::fromArray($request->all());
         $errors = $this->settingsService->saveSettings($dto);
 
-        if (!empty($errors)) {
+        if (! empty($errors)) {
             return response()->json(['errors' => $errors], 422);
         }
 
@@ -362,9 +367,28 @@ class MonitorController extends Controller
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Falha ao testar captura: ' . $e->getMessage(),
+                'message' => 'Falha ao testar captura: '.$e->getMessage(),
             ], 500);
         }
     }
-}
 
+    public function getHealth(): JsonResponse
+    {
+        return response()->json($this->healthService->checkHealth());
+    }
+
+    public function exportDiagnostics(): JsonResponse
+    {
+        return response()->json($this->diagnosticService->generateReport());
+    }
+
+    public function cleanupTemporaryFiles(): JsonResponse
+    {
+        $deleted = $this->cleanupService->cleanAllTemporaryFiles();
+
+        return response()->json([
+            'message' => "Limpeza de manutenção concluída ({$deleted} arquivos removidos).",
+            'deleted_count' => $deleted,
+        ]);
+    }
+}

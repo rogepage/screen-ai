@@ -12,6 +12,7 @@ use Tests\TestCase;
 class DefaultImageProcessorTest extends TestCase
 {
     private string $tempDir;
+
     private string $storageDir;
 
     protected function setUp(): void
@@ -20,10 +21,10 @@ class DefaultImageProcessorTest extends TestCase
         $this->tempDir = storage_path('framework/testing/processor_test_src');
         $this->storageDir = storage_path('framework/testing/processor_test_out');
 
-        if (!File::exists($this->tempDir)) {
+        if (! File::exists($this->tempDir)) {
             File::makeDirectory($this->tempDir, 0755, true);
         }
-        if (!File::exists($this->storageDir)) {
+        if (! File::exists($this->storageDir)) {
             File::makeDirectory($this->storageDir, 0755, true);
         }
     }
@@ -41,11 +42,12 @@ class DefaultImageProcessorTest extends TestCase
 
     private function createSamplePng(string $filename, int $w, int $h): string
     {
-        $path = $this->tempDir . '/' . $filename;
+        $path = $this->tempDir.'/'.$filename;
         $img = imagecreatetruecolor($w, $h);
         $blue = imagecolorallocate($img, 0, 100, 200);
         imagefill($img, 0, 0, $blue);
         imagepng($img, $path);
+
         return $path;
     }
 
@@ -100,7 +102,7 @@ class DefaultImageProcessorTest extends TestCase
 
     public function test_throws_exception_for_corrupted_or_invalid_image_file(): void
     {
-        $corruptPath = $this->tempDir . '/corrupt.png';
+        $corruptPath = $this->tempDir.'/corrupt.png';
         File::put($corruptPath, 'not a real png image data');
 
         $capture = new CaptureResultDTO(
@@ -182,11 +184,11 @@ class DefaultImageProcessorTest extends TestCase
     {
         $processor = new DefaultImageProcessor(storageDir: $this->storageDir);
 
-        $oldFile = $this->storageDir . '/proc_old.png';
+        $oldFile = $this->storageDir.'/proc_old.png';
         File::put($oldFile, 'dummy content');
         touch($oldFile, time() - 3600); // 1 hour ago
 
-        $newFile = $this->storageDir . '/proc_new.png';
+        $newFile = $this->storageDir.'/proc_new.png';
         File::put($newFile, 'dummy content');
 
         $processor->cleanupTemporaryImages(300); // 5 min TTL

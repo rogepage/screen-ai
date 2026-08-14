@@ -3,7 +3,6 @@
 namespace Tests\Unit;
 
 use App\DTO\AiPromptDTO;
-use App\DTO\AiResponseDTO;
 use App\Enums\ActionType;
 use App\Services\AI\GeminiAiProvider;
 use Illuminate\Support\Facades\File;
@@ -19,7 +18,7 @@ class GeminiAiProviderTest extends TestCase
         parent::setUp();
         $this->tempDir = storage_path('framework/testing/gemini_test');
 
-        if (!File::exists($this->tempDir)) {
+        if (! File::exists($this->tempDir)) {
             File::makeDirectory($this->tempDir, 0755, true);
         }
     }
@@ -60,7 +59,7 @@ class GeminiAiProviderTest extends TestCase
             ], 200),
         ]);
 
-        $imgPath = $this->tempDir . '/test.png';
+        $imgPath = $this->tempDir.'/test.png';
         File::put($imgPath, 'dummy image bytes');
 
         $provider = new GeminiAiProvider(apiKey: 'dummy_key', model: 'gemini-1.5-flash');
@@ -78,9 +77,10 @@ class GeminiAiProviderTest extends TestCase
 
         Http::assertSent(function ($request) {
             $data = $request->data();
+
             return isset($data['contents'][0]['parts'][0]['text']) &&
                    str_contains($request->url(), 'generativelanguage.googleapis.com') &&
-                   !str_contains($request->body(), 'dummy_key_in_body');
+                   ! str_contains($request->body(), 'dummy_key_in_body');
         });
     }
 

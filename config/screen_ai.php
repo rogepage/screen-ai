@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'version' => env('APP_VERSION', '1.0.0'),
+
     /*
     |--------------------------------------------------------------------------
     | Provedor de IA Padrão
@@ -20,6 +22,10 @@ return [
         'timeout' => (int) env('AI_TIMEOUT', 30),
         'max_retries' => (int) env('AI_MAX_RETRIES', 2),
         'response_language' => env('AI_RESPONSE_LANGUAGE', 'pt-BR'),
+        'circuit_breaker' => [
+            'failure_threshold' => (int) env('AI_CB_FAILURE_THRESHOLD', 3),
+            'cooldown_seconds' => (int) env('AI_CB_COOLDOWN_SECONDS', 15),
+        ],
     ],
 
     /*

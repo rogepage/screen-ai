@@ -8,7 +8,9 @@ use App\Events\CaptureDebounced;
 class CaptureDebounceService
 {
     private float $lastChangeTimestamp = 0.0;
+
     private int $debouncedCount = 0;
+
     private int $droppedCount = 0;
 
     public function __construct(
@@ -30,6 +32,7 @@ class CaptureDebounceService
         if ($this->lastChangeTimestamp > 0 && $elapsedMs < $effectiveDebounce) {
             $this->droppedCount++;
             $this->lastChangeTimestamp = $now;
+
             return false;
         }
 

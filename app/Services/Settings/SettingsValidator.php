@@ -36,16 +36,16 @@ class SettingsValidator
         }
 
         $validLanguages = ['pt-BR', 'pt', 'en-US', 'en', 'es-ES', 'es', 'fr-FR', 'fr'];
-        if (!in_array($settings->uiLanguage, $validLanguages, true)) {
+        if (! in_array($settings->uiLanguage, $validLanguages, true)) {
             $errors['ui_language'] = 'Idioma de interface não suportado.';
         }
 
-        if (!in_array($settings->responseLanguage, $validLanguages, true)) {
+        if (! in_array($settings->responseLanguage, $validLanguages, true)) {
             $errors['response_language'] = 'Idioma de resposta da IA não suportado.';
         }
 
         $validRetentions = ['7_days', '30_days', 'always'];
-        if (!in_array($settings->historyRetention, $validRetentions, true)) {
+        if (! in_array($settings->historyRetention, $validRetentions, true)) {
             $errors['history_retention'] = 'Política de retenção de histórico inválida.';
         }
 

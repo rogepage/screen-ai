@@ -2,7 +2,6 @@
 
 namespace App\Services\AI;
 
-use App\DTO\AiPromptDTO;
 use App\DTO\AiResponseDTO;
 use App\DTO\ProcessedImageDTO;
 use App\Enums\ActionType;

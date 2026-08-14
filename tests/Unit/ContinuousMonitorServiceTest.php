@@ -13,6 +13,7 @@ use Tests\TestCase;
 class ContinuousMonitorServiceTest extends TestCase
 {
     private ContinuousMonitorService $service;
+
     private ScreenMonitorService $monitor;
 
     protected function setUp(): void

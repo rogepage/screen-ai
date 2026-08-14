@@ -141,6 +141,7 @@
             <button class="tab-btn" onclick="switchTab('tabMonitor')">Monitoramento</button>
             <button class="tab-btn" onclick="switchTab('tabAI')">Inteligência Artificial</button>
             <button class="tab-btn" onclick="switchTab('tabPrivacy')">Privacidade</button>
+            <button class="tab-btn" onclick="switchTab('tabDiagnostics')">Diagnóstico</button>
             <button class="tab-btn" onclick="switchTab('tabAbout')">Sobre</button>
         </div>
 
@@ -270,6 +271,19 @@
             <p style="font-size: 13px; color: var(--muted-text); line-height: 1.5;">
                 O Screen AI opera exclusivamente com banco de dados SQLite local. Nenhuma captura de tela ou chave de autenticação é salva no banco ou compartilhada com terceiros além do provedor de IA escolhido.
             </p>
+        </div>
+
+        <!-- ABA DIAGNÓSTICO -->
+        <div id="tabDiagnostics" class="tab-pane card">
+            <h2>Diagnóstico do Sistema</h2>
+            <div id="diagnosticContent" style="background: var(--bg-color); padding: 12px; border-radius: 6px; border: 1px solid var(--border-color); font-family: monospace; font-size: 12px; margin-bottom: 16px; max-height: 250px; overflow-y: auto;">
+                Carregando relatório técnico...
+            </div>
+            <div class="btn-group" style="margin: 0;">
+                <button class="btn-secondary" onclick="loadDiagnostics()">Atualizar Diagnóstico</button>
+                <button class="btn-primary" onclick="exportDiagnosticsJson()">Exportar Diagnóstico (.JSON)</button>
+                <button class="btn-danger" onclick="cleanTemporaryFiles()">Limpar Arquivos Temporários</button>
+            </div>
         </div>
 
         <!-- ABA SOBRE -->
@@ -404,7 +418,50 @@
             }
         }
 
+        async function loadDiagnostics() {
+            const container = document.getElementById('diagnosticContent');
+            container.innerText = 'Carregando relatório técnico...';
+            try {
+                const res = await fetch('/api/diagnostics/export');
+                const data = await res.json();
+                container.innerText = JSON.stringify(data, null, 2);
+            } catch (e) {
+                container.innerText = 'Erro ao obter diagnóstico: ' + e.message;
+            }
+        }
+
+        async function exportDiagnosticsJson() {
+            try {
+                const res = await fetch('/api/diagnostics/export');
+                const data = await res.json();
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `screen_ai_diagnostics_${new Date().toISOString().slice(0,19).replace(/[:T]/g,'_')}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch (e) {
+                alert('Erro ao exportar diagnóstico: ' + e.message);
+            }
+        }
+
+        async function cleanTemporaryFiles() {
+            if (!confirm('Deseja realmente limpar todos os arquivos temporários de captura de tela?')) return;
+            try {
+                const res = await fetch('/api/maintenance/cleanup', { method: 'POST' });
+                const data = await res.json();
+                alert(data.message);
+                loadDiagnostics();
+            } catch (e) {
+                alert('Erro ao executar limpeza: ' + e.message);
+            }
+        }
+
         loadSettings();
+        loadDiagnostics();
     </script>
 </body>
 </html>

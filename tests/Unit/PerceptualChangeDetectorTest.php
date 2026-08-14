@@ -15,7 +15,7 @@ class PerceptualChangeDetectorTest extends TestCase
         parent::setUp();
         $this->tempDir = storage_path('framework/testing/perceptual_test');
 
-        if (!File::exists($this->tempDir)) {
+        if (! File::exists($this->tempDir)) {
             File::makeDirectory($this->tempDir, 0755, true);
         }
     }
@@ -30,17 +30,18 @@ class PerceptualChangeDetectorTest extends TestCase
 
     private function createSolidImage(string $filename, int $w, int $h, int $r, int $g, int $b): string
     {
-        $filePath = $this->tempDir . '/' . $filename;
+        $filePath = $this->tempDir.'/'.$filename;
         $img = imagecreatetruecolor($w, $h);
         $color = imagecolorallocate($img, $r, $g, $b);
         imagefill($img, 0, 0, $color);
         imagepng($img, $filePath);
+
         return $filePath;
     }
 
     private function createPartialImage(string $filename, int $w, int $h, float $changePercentage): string
     {
-        $filePath = $this->tempDir . '/' . $filename;
+        $filePath = $this->tempDir.'/'.$filename;
         $img = imagecreatetruecolor($w, $h);
         $black = imagecolorallocate($img, 0, 0, 0);
         $white = imagecolorallocate($img, 255, 255, 255);
@@ -52,6 +53,7 @@ class PerceptualChangeDetectorTest extends TestCase
         }
 
         imagepng($img, $filePath);
+
         return $filePath;
     }
 
@@ -108,7 +110,7 @@ class PerceptualChangeDetectorTest extends TestCase
         $detector = new PerceptualChangeDetector(0.05);
         $validImg = $this->createSolidImage('valid.png', 50, 50, 0, 255, 0);
 
-        $invalidFile = $this->tempDir . '/corrupt.png';
+        $invalidFile = $this->tempDir.'/corrupt.png';
         File::put($invalidFile, 'not an image data');
 
         // Current image doesn't exist or is invalid

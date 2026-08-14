@@ -11,12 +11,12 @@ class MockScreenCaptureService implements ScreenCaptureInterface
     public function captureRegion(ScreenRegionDTO $region): CaptureResultDTO
     {
         $storageDir = storage_path('framework/testing/mock_captures');
-        if (!File::exists($storageDir)) {
+        if (! File::exists($storageDir)) {
             File::makeDirectory($storageDir, 0755, true);
         }
 
-        $filePath = $storageDir . '/mock_capture.png';
-        if (!File::exists($filePath)) {
+        $filePath = $storageDir.'/mock_capture.png';
+        if (! File::exists($filePath)) {
             $img = imagecreatetruecolor(100, 100);
             $blue = imagecolorallocate($img, 0, 100, 200);
             imagefill($img, 0, 0, $blue);
@@ -25,7 +25,7 @@ class MockScreenCaptureService implements ScreenCaptureInterface
 
         return new CaptureResultDTO(
             filePath: $filePath,
-            hash: md5('mock_frame_' . time()),
+            hash: md5('mock_frame_'.time()),
             timestamp: time(),
             hasChanged: true,
             dimensions: [

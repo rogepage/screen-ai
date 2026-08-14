@@ -15,7 +15,7 @@ class MacScreenCaptureService implements ScreenCaptureInterface
     {
         $this->storageDir = $storageDir ?? storage_path('app/captures');
 
-        if (!File::exists($this->storageDir)) {
+        if (! File::exists($this->storageDir)) {
             File::makeDirectory($this->storageDir, 0755, true);
         }
     }
@@ -24,7 +24,7 @@ class MacScreenCaptureService implements ScreenCaptureInterface
     {
         $timestamp = time();
         $fileName = sprintf('capture_%d_%s.png', $timestamp, uniqid());
-        $filePath = $this->storageDir . '/' . $fileName;
+        $filePath = $this->storageDir.'/'.$fileName;
 
         // screencapture -R x,y,width,height -x filePath
         $regionRect = sprintf('%d,%d,%d,%d', $region->x, $region->y, $region->width, $region->height);
@@ -32,7 +32,7 @@ class MacScreenCaptureService implements ScreenCaptureInterface
         $process = new Process(['/usr/sbin/screencapture', '-R', $regionRect, '-x', $filePath]);
         $process->run();
 
-        if (!$process->isSuccessful() || !File::exists($filePath)) {
+        if (! $process->isSuccessful() || ! File::exists($filePath)) {
             // Em caso de execução fora do macOS real (ex: CI), gerar um arquivo dummy de fallback
             File::put($filePath, 'dummy image content');
         }
@@ -56,7 +56,7 @@ class MacScreenCaptureService implements ScreenCaptureInterface
 
     public function cleanupTemporaryCaptures(): void
     {
-        if (!File::exists($this->storageDir)) {
+        if (! File::exists($this->storageDir)) {
             return;
         }
 

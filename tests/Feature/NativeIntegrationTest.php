@@ -7,7 +7,6 @@ use App\Events\Native\ToggleMonitorShortcutPressed;
 use App\Events\Native\TogglePauseShortcutPressed;
 use App\Services\Screen\ScreenMonitorService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
 class NativeIntegrationTest extends TestCase
@@ -46,15 +45,15 @@ class NativeIntegrationTest extends TestCase
         $monitor = $this->app->make(ScreenMonitorService::class);
 
         // 1. Disparar ToggleMonitorShortcutPressed
-        event(new ToggleMonitorShortcutPressed());
+        event(new ToggleMonitorShortcutPressed);
         $this->assertEquals('monitoring', $monitor->getState()->value);
 
         // 2. Disparar TogglePauseShortcutPressed
-        event(new TogglePauseShortcutPressed());
+        event(new TogglePauseShortcutPressed);
         $this->assertEquals('paused', $monitor->getState()->value);
 
         // 3. Disparar AnalyzeNowShortcutPressed
-        event(new AnalyzeNowShortcutPressed());
+        event(new AnalyzeNowShortcutPressed);
         // Deve executar sem lançar exceções
         $this->assertTrue(true);
     }

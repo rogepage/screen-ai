@@ -154,9 +154,10 @@
 <body>
     <div class="container">
         <header>
-            <div>
-                <h1 style="display: inline-block; margin-right: 12px;">Screen AI — Painel de Controle</h1>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <h1 style="display: inline-block; margin: 0;">Screen AI — Painel de Controle</h1>
                 <span id="stateBadge" class="badge stopped">STOPPED</span>
+                <span id="healthBadge" style="font-size: 12px; font-weight: 600; color: #22c55e;">● Operacional</span>
             </div>
             <div style="display: flex; gap: 8px;">
                 <button class="btn-secondary" onclick="window.location.href='/'">Monitor</button>
@@ -771,10 +772,31 @@
             }
         }
 
+        async function fetchHealthStatus() {
+            try {
+                const res = await fetch('/api/health');
+                const data = await res.json();
+                const badge = document.getElementById('healthBadge');
+                if (data.status === 'healthy') {
+                    badge.style.color = '#22c55e';
+                    badge.innerText = '● Operacional';
+                } else if (data.status === 'degraded') {
+                    badge.style.color = '#eab308';
+                    badge.innerText = '● ' + data.message;
+                } else {
+                    badge.style.color = '#ef4444';
+                    badge.innerText = '● ' + data.message;
+                }
+            } catch (e) {
+                // Silencioso
+            }
+        }
+
         fetchState();
         loadHistory(1);
         fetchPipelineStats();
         checkStartupPermission();
+        fetchHealthStatus();
     </script>
 </body>
 </html>

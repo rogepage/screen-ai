@@ -15,8 +15,11 @@ use Tests\TestCase;
 class StartupServiceTest extends TestCase
 {
     private StartupService $startupService;
+
     private AppSettingsService $settingsService;
+
     private MacPermissionService $permissionService;
+
     private ScreenRegionService $regionService;
 
     protected function setUp(): void
@@ -27,9 +30,9 @@ class StartupServiceTest extends TestCase
             @unlink($filePath);
         }
 
-        $this->settingsService = new AppSettingsService(new SettingsValidator());
-        $this->permissionService = new MacPermissionService();
-        $this->regionService = new ScreenRegionService();
+        $this->settingsService = new AppSettingsService(new SettingsValidator);
+        $this->permissionService = new MacPermissionService;
+        $this->regionService = new ScreenRegionService;
 
         $this->startupService = new StartupService(
             $this->settingsService,

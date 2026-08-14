@@ -22,7 +22,7 @@ class AnalysisHistoryIntegrationTest extends TestCase
         parent::setUp();
         $this->tempDir = storage_path('framework/testing/history_integration_test');
 
-        if (!File::exists($this->tempDir)) {
+        if (! File::exists($this->tempDir)) {
             File::makeDirectory($this->tempDir, 0755, true);
         }
     }
@@ -38,7 +38,7 @@ class AnalysisHistoryIntegrationTest extends TestCase
     public function test_analysis_pipeline_automatically_persists_history_record(): void
     {
         // 1. Simular uma captura de tela
-        $srcPath = $this->tempDir . '/frame_history.png';
+        $srcPath = $this->tempDir.'/frame_history.png';
         $img = imagecreatetruecolor(400, 300);
         $magenta = imagecolorallocate($img, 255, 0, 255);
         imagefill($img, 0, 0, $magenta);
@@ -110,12 +110,12 @@ class AnalysisHistoryIntegrationTest extends TestCase
         ]);
 
         // Obter detalhes
-        $getResponse = $this->getJson('/api/history/' . $item->id);
+        $getResponse = $this->getJson('/api/history/'.$item->id);
         $getResponse->assertStatus(200);
         $getResponse->assertJsonPath('item.response_text', 'Explicação completa do código.');
 
         // Excluir item
-        $deleteResponse = $this->deleteJson('/api/history/' . $item->id);
+        $deleteResponse = $this->deleteJson('/api/history/'.$item->id);
         $deleteResponse->assertStatus(200);
         $this->assertDatabaseMissing('analysis_histories', ['id' => $item->id]);
     }

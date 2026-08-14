@@ -12,9 +12,13 @@ use Throwable;
 class GeminiAiProvider implements AiProviderInterface
 {
     private string $apiKey;
+
     private string $model;
+
     private int $timeout;
+
     private int $maxRetries;
+
     private string $responseLanguage;
 
     public function __construct(
@@ -56,7 +60,7 @@ class GeminiAiProvider implements AiProviderInterface
             ['text' => $textPrompt],
         ];
 
-        if (!empty($prompt->imagePath) && File::exists($prompt->imagePath)) {
+        if (! empty($prompt->imagePath) && File::exists($prompt->imagePath)) {
             $imageContent = @file_get_contents($prompt->imagePath);
             if ($imageContent !== false) {
                 $ext = strtolower(pathinfo($prompt->imagePath, PATHINFO_EXTENSION));
@@ -98,6 +102,7 @@ class GeminiAiProvider implements AiProviderInterface
                     if ($exception instanceof RequestException) {
                         return $exception->response?->status() >= 500;
                     }
+
                     return true;
                 }, false);
             }
@@ -148,7 +153,7 @@ class GeminiAiProvider implements AiProviderInterface
                 success: false,
                 provider: $this->getName(),
                 model: $this->model,
-                errorMessage: 'Falha na requisição ao provedor de IA: ' . $e->getMessage(),
+                errorMessage: 'Falha na requisição ao provedor de IA: '.$e->getMessage(),
                 metadata: [
                     'duration_ms' => $durationMs,
                 ]

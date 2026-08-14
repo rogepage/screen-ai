@@ -7,7 +7,6 @@ use App\Events\Native\ToggleMonitorShortcutPressed;
 use App\Events\Native\ToggleOverlayShortcutPressed;
 use App\Events\Native\TogglePauseShortcutPressed;
 use App\Services\Native\NativeBridgeService;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -28,13 +27,13 @@ class HandleNativeShortcuts
                 Log::info("Atalho acionado: Toggle Pause. Novo estado: {$newState}");
             } elseif ($event instanceof AnalyzeNowShortcutPressed) {
                 $result = $this->nativeBridge->triggerAnalysisNow();
-                Log::info("Atalho acionado: Analisar Agora.", ['success' => $result['success'] ?? false]);
+                Log::info('Atalho acionado: Analisar Agora.', ['success' => $result['success'] ?? false]);
             } elseif ($event instanceof ToggleOverlayShortcutPressed) {
                 $isOpen = $this->nativeBridge->toggleOverlay();
-                Log::info("Atalho acionado: Toggle Overlay. Aberto: " . ($isOpen ? 'SIM' : 'NÃO'));
+                Log::info('Atalho acionado: Toggle Overlay. Aberto: '.($isOpen ? 'SIM' : 'NÃO'));
             }
         } catch (Throwable $e) {
-            Log::error('Erro ao processar evento de atalho nativo: ' . $e->getMessage());
+            Log::error('Erro ao processar evento de atalho nativo: '.$e->getMessage());
         }
     }
 }

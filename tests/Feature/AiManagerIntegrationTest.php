@@ -24,7 +24,7 @@ class AiManagerIntegrationTest extends TestCase
         parent::setUp();
         $this->tempDir = storage_path('framework/testing/ai_integration_test');
 
-        if (!File::exists($this->tempDir)) {
+        if (! File::exists($this->tempDir)) {
             File::makeDirectory($this->tempDir, 0755, true);
         }
     }
@@ -42,7 +42,7 @@ class AiManagerIntegrationTest extends TestCase
         Event::fake([AnalysisStarted::class, AnalysisCompleted::class]);
 
         // 1. Criar uma imagem capturada
-        $srcPath = $this->tempDir . '/captured.png';
+        $srcPath = $this->tempDir.'/captured.png';
         $img = imagecreatetruecolor(640, 480);
         $red = imagecolorallocate($img, 200, 0, 0);
         imagefill($img, 0, 0, $red);

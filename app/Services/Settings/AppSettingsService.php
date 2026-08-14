@@ -10,6 +10,7 @@ use Throwable;
 class AppSettingsService
 {
     private string $storagePath;
+
     private ?AppSettingsDTO $cachedSettings = null;
 
     public function __construct(
@@ -30,10 +31,11 @@ class AppSettingsService
                 $data = json_decode($content, true);
                 if (is_array($data)) {
                     $this->cachedSettings = AppSettingsDTO::fromArray($data);
+
                     return $this->cachedSettings;
                 }
             } catch (Throwable $e) {
-                Log::warning('Erro ao ler arquivo de configurações locais: ' . $e->getMessage());
+                Log::warning('Erro ao ler arquivo de configurações locais: '.$e->getMessage());
             }
         }
 
@@ -61,21 +63,23 @@ class AppSettingsService
     public function saveSettings(AppSettingsDTO $settings): array
     {
         $errors = $this->validator->validate($settings);
-        if (!empty($errors)) {
+        if (! empty($errors)) {
             return $errors;
         }
 
         try {
             $dir = dirname($this->storagePath);
-            if (!File::exists($dir)) {
+            if (! File::exists($dir)) {
                 File::makeDirectory($dir, 0755, true);
             }
 
             File::put($this->storagePath, json_encode($settings->toArray(), JSON_PRETTY_PRINT));
             $this->cachedSettings = $settings;
+
             return [];
         } catch (Throwable $e) {
-            Log::error('Falha ao salvar configurações no disco: ' . $e->getMessage());
+            Log::error('Falha ao salvar configurações no disco: '.$e->getMessage());
+
             return ['storage' => 'Falha técnica ao gravar configurações no disco.'];
         }
     }
@@ -111,6 +115,7 @@ class AppSettingsService
         }
 
         $this->cachedSettings = null;
+
         return $this->getSettings();
     }
 }

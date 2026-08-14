@@ -10,7 +10,7 @@ class PermissionServiceTest extends TestCase
 {
     public function test_can_mock_and_verify_permission_status(): void
     {
-        $service = new MacPermissionService();
+        $service = new MacPermissionService;
 
         // 1. Mock Granted
         $service->setMockedStatus(PermissionStatus::GRANTED);

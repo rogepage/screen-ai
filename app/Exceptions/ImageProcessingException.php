@@ -23,6 +23,6 @@ class ImageProcessingException extends Exception
 
     public static function processingFailed(string $reason): self
     {
-        return new self('Falha no processamento da imagem: ' . $reason);
+        return new self('Falha no processamento da imagem: '.$reason);
     }
 }

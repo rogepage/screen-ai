@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\DTO\CaptureResultDTO;
 use App\Events\ScreenChanged;
-use App\Services\Screen\ChangeDetectorInterface;
 use App\Services\Screen\MockChangeDetector;
 use App\Services\Screen\ScreenMonitorService;
 use Illuminate\Support\Facades\Event;

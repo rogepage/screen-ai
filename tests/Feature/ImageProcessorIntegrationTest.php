@@ -17,7 +17,7 @@ class ImageProcessorIntegrationTest extends TestCase
         parent::setUp();
         $this->tempDir = storage_path('framework/testing/integration_image_test');
 
-        if (!File::exists($this->tempDir)) {
+        if (! File::exists($this->tempDir)) {
             File::makeDirectory($this->tempDir, 0755, true);
         }
     }
@@ -33,7 +33,7 @@ class ImageProcessorIntegrationTest extends TestCase
     public function test_pipeline_from_capture_result_to_processed_image_dto(): void
     {
         // 1. Simular uma imagem capturada pela Fase 4/5
-        $srcPath = $this->tempDir . '/captured_frame.png';
+        $srcPath = $this->tempDir.'/captured_frame.png';
         $img = imagecreatetruecolor(1280, 720);
         $green = imagecolorallocate($img, 0, 200, 0);
         imagefill($img, 0, 0, $green);

@@ -3,7 +3,6 @@
 namespace Tests\Unit;
 
 use App\DTO\AiPromptDTO;
-use App\DTO\AiResponseDTO;
 use App\Enums\ActionType;
 use App\Events\AnalysisCompleted;
 use App\Events\AnalysisFailed;
@@ -17,7 +16,7 @@ class AiManagerServiceTest extends TestCase
 {
     public function test_resolves_default_mock_provider(): void
     {
-        $mock = new MockAiProvider();
+        $mock = new MockAiProvider;
         $manager = new AiManagerService($mock);
 
         $provider = $manager->getProvider('mock');
@@ -28,7 +27,7 @@ class AiManagerServiceTest extends TestCase
     {
         Event::fake([AnalysisStarted::class, AnalysisCompleted::class, AnalysisFailed::class]);
 
-        $mock = new MockAiProvider();
+        $mock = new MockAiProvider;
         $manager = new AiManagerService($mock);
 
         $prompt = new AiPromptDTO(actionType: ActionType::INTERPRET, userInstruction: 'Teste de análise');

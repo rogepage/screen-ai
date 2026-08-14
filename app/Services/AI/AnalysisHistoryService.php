@@ -27,7 +27,7 @@ class AnalysisHistoryService
             model: $response->model,
             status: $status,
             responseText: $response->success ? $response->text : null,
-            errorMessage: !$response->success ? $response->errorMessage : null,
+            errorMessage: ! $response->success ? $response->errorMessage : null,
             durationMs: $durationMs,
             userInstruction: $prompt->userInstruction,
             language: $language

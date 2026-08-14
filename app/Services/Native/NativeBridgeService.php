@@ -16,6 +16,8 @@ use App\Services\Screen\ScreenCaptureInterface;
 use App\Services\Screen\ScreenMonitorService;
 use App\Services\Screen\ScreenRegionService;
 use Illuminate\Support\Facades\Log;
+use Native\Desktop\Facades\GlobalShortcut;
+use Native\Desktop\Facades\Window;
 use Throwable;
 
 class NativeBridgeService
@@ -40,7 +42,7 @@ class NativeBridgeService
         $status = [];
         $enabled = config('screen_ai.native.global_shortcuts_enabled', true);
 
-        if (!$enabled) {
+        if (! $enabled) {
             return $status;
         }
 
@@ -76,14 +78,15 @@ class NativeBridgeService
     private function safelyRegisterShortcut(string $key, string $eventClass): bool
     {
         try {
-            if (class_exists(\Native\Desktop\Facades\GlobalShortcut::class)) {
-                \Native\Desktop\Facades\GlobalShortcut::key($key)
+            if (class_exists(GlobalShortcut::class)) {
+                GlobalShortcut::key($key)
                     ->event($eventClass)
                     ->register();
+
                 return true;
             }
         } catch (Throwable $e) {
-            Log::warning("Falha ou conflito ao registrar atalho global [{$key}]: " . $e->getMessage());
+            Log::warning("Falha ou conflito ao registrar atalho global [{$key}]: ".$e->getMessage());
         }
 
         return false;
@@ -98,6 +101,7 @@ class NativeBridgeService
 
         if ($currentState === MonitorState::MONITORING) {
             $this->monitorService->stop();
+
             return MonitorState::STOPPED->value;
         }
 
@@ -108,6 +112,7 @@ class NativeBridgeService
         );
 
         $this->monitorService->start($config);
+
         return MonitorState::MONITORING->value;
     }
 
@@ -120,6 +125,7 @@ class NativeBridgeService
 
         if ($currentState === MonitorState::MONITORING) {
             $this->monitorService->pause();
+
             return MonitorState::PAUSED->value;
         }
 
@@ -156,23 +162,23 @@ class NativeBridgeService
      */
     public function toggleOverlay(): bool
     {
-        $this->overlayOpen = !$this->overlayOpen;
+        $this->overlayOpen = ! $this->overlayOpen;
 
         try {
-            if (class_exists(\Native\Desktop\Facades\Window::class)) {
+            if (class_exists(Window::class)) {
                 if ($this->overlayOpen) {
-                    \Native\Desktop\Facades\Window::open('overlay')
+                    Window::open('overlay')
                         ->route('overlay')
                         ->width(360)
                         ->height(180)
                         ->alwaysOnTop()
                         ->showDevTools(false);
                 } else {
-                    \Native\Desktop\Facades\Window::close('overlay');
+                    Window::close('overlay');
                 }
             }
         } catch (Throwable $e) {
-            Log::info('Operação de janela Overlay interceptada ou em ambiente não-desktop: ' . $e->getMessage());
+            Log::info('Operação de janela Overlay interceptada ou em ambiente não-desktop: '.$e->getMessage());
         }
 
         return $this->overlayOpen;
@@ -186,8 +192,7 @@ class NativeBridgeService
     /**
      * Verifica se a área de captura configurada colide com a janela de overlay (Anti-Loop).
      *
-     * @param ScreenRegionDTO $region
-     * @param array{x: int, y: int, width: int, height: int} $overlayBounds
+     * @param  array{x: int, y: int, width: int, height: int}  $overlayBounds
      */
     public function checkRegionOverlayCollision(ScreenRegionDTO $region, array $overlayBounds): bool
     {

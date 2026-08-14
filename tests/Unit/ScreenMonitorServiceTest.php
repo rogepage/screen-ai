@@ -15,7 +15,7 @@ class ScreenMonitorServiceTest extends TestCase
 {
     public function test_initial_state_is_stopped(): void
     {
-        $service = new ScreenMonitorService();
+        $service = new ScreenMonitorService;
         $this->assertEquals(MonitorState::STOPPED, $service->getState());
         $this->assertNull($service->getConfig());
     }
@@ -24,7 +24,7 @@ class ScreenMonitorServiceTest extends TestCase
     {
         Event::fake();
 
-        $service = new ScreenMonitorService();
+        $service = new ScreenMonitorService;
         $config = new MonitorConfigDTO(intervalMs: 1500);
 
         $service->start($config);
@@ -32,7 +32,7 @@ class ScreenMonitorServiceTest extends TestCase
         $this->assertEquals(MonitorState::MONITORING, $service->getState());
         $this->assertEquals(1500, $service->getConfig()->intervalMs);
 
-        Event::assertDispatched(MonitorStarted::class, function ($event) use ($config) {
+        Event::assertDispatched(MonitorStarted::class, function ($event) {
             return $event->config->intervalMs === 1500;
         });
     }
@@ -41,7 +41,7 @@ class ScreenMonitorServiceTest extends TestCase
     {
         Event::fake();
 
-        $service = new ScreenMonitorService();
+        $service = new ScreenMonitorService;
         $service->start();
 
         $service->pause();
@@ -56,7 +56,7 @@ class ScreenMonitorServiceTest extends TestCase
     {
         Event::fake();
 
-        $service = new ScreenMonitorService();
+        $service = new ScreenMonitorService;
         $service->start();
 
         $service->stop('Test reason');

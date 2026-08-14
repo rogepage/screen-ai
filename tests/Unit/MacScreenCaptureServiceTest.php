@@ -28,7 +28,7 @@ class MacScreenCaptureServiceTest extends TestCase
 
     public function test_mock_screen_capture_service(): void
     {
-        $mock = new MockScreenCaptureService();
+        $mock = new MockScreenCaptureService;
         $region = new ScreenRegionDTO(x: 10, y: 10, width: 100, height: 100);
 
         $result = $mock->captureRegion($region);
@@ -53,7 +53,7 @@ class MacScreenCaptureServiceTest extends TestCase
     public function test_cleanup_deletes_old_files(): void
     {
         $service = new MacScreenCaptureService($this->testDir);
-        $oldFile = $this->testDir . '/old_capture.png';
+        $oldFile = $this->testDir.'/old_capture.png';
         File::put($oldFile, 'old content');
 
         // Modifica a data de modificação para 1 hora atrás (3600 segundos)

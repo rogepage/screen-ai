@@ -11,6 +11,7 @@ use Tests\TestCase;
 class AppSettingsServiceTest extends TestCase
 {
     private AppSettingsService $service;
+
     private string $filePath;
 
     protected function setUp(): void
@@ -20,7 +21,7 @@ class AppSettingsServiceTest extends TestCase
         if (File::exists($this->filePath)) {
             @unlink($this->filePath);
         }
-        $this->service = new AppSettingsService(new SettingsValidator());
+        $this->service = new AppSettingsService(new SettingsValidator);
     }
 
     protected function tearDown(): void

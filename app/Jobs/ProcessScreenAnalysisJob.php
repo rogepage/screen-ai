@@ -39,7 +39,7 @@ class ProcessScreenAnalysisJob implements ShouldQueue
                 language: $this->language
             );
         } catch (Throwable $e) {
-            Log::error('Erro ao executar Job de Análise Contínua de Tela: ' . $e->getMessage(), [
+            Log::error('Erro ao executar Job de Análise Contínua de Tela: '.$e->getMessage(), [
                 'capture_path' => $this->capture->filePath,
                 'action_type' => $this->actionType->value,
             ]);

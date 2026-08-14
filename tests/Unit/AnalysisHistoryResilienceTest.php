@@ -26,7 +26,7 @@ class AnalysisHistoryResilienceTest extends TestCase
         $historyService = new AnalysisHistoryService($failingRepository);
 
         // 2. Provedor de IA com resposta de sucesso
-        $mockAiProvider = new MockAiProvider();
+        $mockAiProvider = new MockAiProvider;
         $aiManager = new AiManagerService($mockAiProvider);
         $promptBuilder = new DefaultPromptBuilder('pt-BR');
 

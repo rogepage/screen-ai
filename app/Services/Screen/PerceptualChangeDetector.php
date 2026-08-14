@@ -5,6 +5,7 @@ namespace App\Services\Screen;
 class PerceptualChangeDetector implements ChangeDetectorInterface
 {
     private float $threshold;
+
     private int $sampleSize;
 
     public function __construct(?float $threshold = null, int $sampleSize = 32)
@@ -16,12 +17,12 @@ class PerceptualChangeDetector implements ChangeDetectorInterface
     public function hasChanged(string $currentImagePath, ?string $previousImagePath = null): bool
     {
         // Se não houver captura anterior ou o arquivo não existir, considera como mudança válida (primeira captura)
-        if ($previousImagePath === null || trim($previousImagePath) === '' || !file_exists($previousImagePath)) {
+        if ($previousImagePath === null || trim($previousImagePath) === '' || ! file_exists($previousImagePath)) {
             return true;
         }
 
         // Se o arquivo atual não existir, não é possível comparar
-        if (!file_exists($currentImagePath)) {
+        if (! file_exists($currentImagePath)) {
             return false;
         }
 
@@ -55,6 +56,7 @@ class PerceptualChangeDetector implements ChangeDetectorInterface
         }
 
         $image = @imagecreatefromstring($content);
+
         return $image !== false ? $image : null;
     }
 

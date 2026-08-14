@@ -37,12 +37,14 @@ class MacPermissionService implements PermissionServiceInterface
 
             if ($result->successful() && file_exists($tempPath)) {
                 @unlink($tempPath);
+
                 return PermissionStatus::GRANTED;
             }
 
             return PermissionStatus::DENIED;
         } catch (Throwable $e) {
-            Log::info('Não foi possível determinar a permissão de gravação de tela: ' . $e->getMessage());
+            Log::info('Não foi possível determinar a permissão de gravação de tela: '.$e->getMessage());
+
             return PermissionStatus::UNKNOWN;
         }
     }
@@ -53,7 +55,7 @@ class MacPermissionService implements PermissionServiceInterface
             try {
                 Process::run(['open', 'x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture']);
             } catch (Throwable $e) {
-                Log::warning('Falha ao abrir os Ajustes do Sistema do macOS: ' . $e->getMessage());
+                Log::warning('Falha ao abrir os Ajustes do Sistema do macOS: '.$e->getMessage());
             }
         }
     }

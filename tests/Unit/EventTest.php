@@ -22,7 +22,7 @@ class EventTest extends TestCase
     {
         Event::fake();
 
-        $config = new MonitorConfigDTO();
+        $config = new MonitorConfigDTO;
         MonitorStarted::dispatch($config);
         Event::assertDispatched(MonitorStarted::class);
 
@@ -36,7 +36,7 @@ class EventTest extends TestCase
         ScreenChanged::dispatch($capture);
         Event::assertDispatched(ScreenChanged::class);
 
-        $prompt = new AiPromptDTO();
+        $prompt = new AiPromptDTO;
         AnalysisStarted::dispatch($prompt);
         Event::assertDispatched(AnalysisStarted::class);
 
