@@ -10,7 +10,7 @@ class MonitorControllerTest extends TestCase
     {
         $response = $this->get('/');
         $response->assertStatus(200);
-        $response->assertSee('Screen AI — Painel de Controle (Fase 2)');
+        $response->assertSee('Screen AI — Painel de Controle');
     }
 
     public function test_can_get_monitor_state(): void

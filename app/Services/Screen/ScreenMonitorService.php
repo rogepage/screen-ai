@@ -55,4 +55,17 @@ class ScreenMonitorService
             }
         }
     }
+
+    public function updateRegion(\App\DTO\ScreenRegionDTO $region): void
+    {
+        if ($this->currentConfig !== null) {
+            $this->currentConfig = new MonitorConfigDTO(
+                intervalMs: $this->currentConfig->intervalMs,
+                selectedRegion: $region,
+                aiProvider: $this->currentConfig->aiProvider,
+                actionType: $this->currentConfig->actionType
+            );
+        }
+    }
 }
+

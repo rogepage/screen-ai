@@ -7,20 +7,20 @@ Status: CONCLUÍDA
 Status: CONCLUÍDA
 
 ## FASE 2 — Estrutura da aplicação
-Status: EM ANDAMENTO
+Status: CONCLUÍDA
 
 ### Objetivos
 
-- [ ] Criar interface inicial
-- [ ] Criar estados do monitor
-- [ ] Criar configuração
-- [ ] Criar Services
-- [ ] Criar DTOs
-- [ ] Criar Enums
-- [ ] Criar testes
+- [x] Criar interface inicial
+- [x] Criar estados do monitor
+- [x] Criar configuração
+- [x] Criar Services
+- [x] Criar DTOs
+- [x] Criar Enums
+- [x] Criar testes
 
 ## FASE 3 — Seleção da área
-Status: PENDENTE
+Status: EM ANDAMENTO
 
 ## FASE 4 — ScreenCaptureKit
 Status: PENDENTE

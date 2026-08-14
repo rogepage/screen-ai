@@ -11,6 +11,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->singleton(\App\Services\Screen\ScreenRegionService::class);
         $this->app->singleton(\App\Services\Screen\ScreenMonitorService::class);
         $this->app->bind(
             \App\Services\Screen\ChangeDetectorInterface::class,

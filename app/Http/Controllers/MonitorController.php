@@ -5,15 +5,19 @@ namespace App\Http\Controllers;
 use App\DTO\AiPromptDTO;
 use App\DTO\MonitorConfigDTO;
 use App\Enums\ActionType;
+use App\DTO\ScreenRegionDTO;
 use App\Services\AI\AiManagerService;
 use App\Services\Screen\ScreenMonitorService;
+use App\Services\Screen\ScreenRegionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use InvalidArgumentException;
 
 class MonitorController extends Controller
 {
     public function __construct(
         private readonly ScreenMonitorService $monitorService,
+        private readonly ScreenRegionService $regionService,
         private readonly AiManagerService $aiManagerService
     ) {}
 
@@ -22,6 +26,43 @@ class MonitorController extends Controller
         return response()->json([
             'state' => $this->monitorService->getState()->value,
             'config' => $this->monitorService->getConfig()?->toArray(),
+            'region' => $this->regionService->getRegion()?->toArray(),
+        ]);
+    }
+
+    public function getRegion(): JsonResponse
+    {
+        $region = $this->regionService->getRegion();
+
+        return response()->json([
+            'region' => $region?->toArray(),
+        ]);
+    }
+
+    public function setRegion(Request $request): JsonResponse
+    {
+        try {
+            $dto = ScreenRegionDTO::fromArray($request->all());
+            $savedRegion = $this->regionService->setRegion($dto);
+            $this->monitorService->updateRegion($savedRegion);
+
+            return response()->json([
+                'message' => 'Região definida com sucesso',
+                'region' => $savedRegion->toArray(),
+            ]);
+        } catch (InvalidArgumentException $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+            ], 422);
+        }
+    }
+
+    public function clearRegion(): JsonResponse
+    {
+        $this->regionService->clearRegion();
+
+        return response()->json([
+            'message' => 'Região limpa com sucesso',
         ]);
     }
 
@@ -32,6 +73,7 @@ class MonitorController extends Controller
 
         $config = new MonitorConfigDTO(
             intervalMs: (int) $request->input('interval_ms', 1000),
+            selectedRegion: $this->regionService->getRegion(),
             actionType: $actionType
         );
 
@@ -83,3 +125,4 @@ class MonitorController extends Controller
         ]);
     }
 }
+

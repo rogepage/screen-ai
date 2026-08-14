@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Screen AI - Fase 2</title>
+    <title>Screen AI - Painel de Controle</title>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -78,6 +78,7 @@
             display: flex;
             gap: 12px;
             margin-bottom: 16px;
+            flex-wrap: wrap;
         }
 
         button {
@@ -95,6 +96,13 @@
         .btn-stop { background-color: var(--danger); color: #fff; }
         .btn-pause { background-color: var(--warning); color: #000; }
         .btn-analyze { background-color: var(--primary); color: #fff; }
+        .btn-secondary { background-color: var(--border-color); color: #fff; }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
 
         .form-group {
             display: flex;
@@ -118,11 +126,6 @@
             font-size: 14px;
         }
 
-        textarea {
-            resize: vertical;
-            min-height: 120px;
-        }
-
         .log-box {
             font-family: monospace;
             background-color: #020617;
@@ -140,7 +143,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>Screen AI — Painel de Controle (Fase 2)</h1>
+            <h1>Screen AI — Painel de Controle</h1>
             <span id="stateBadge" class="badge stopped">STOPPED</span>
         </header>
 
@@ -152,8 +155,41 @@
                 <button class="btn-stop" onclick="stopMonitor()">Parar</button>
             </div>
             <div style="font-size: 13px; color: var(--muted-text);">
-                Provedor de IA Ativo: <strong>mock</strong> (Fase 2) | Armazenamento de chaves: <strong>macOS Keychain (Produção)</strong>
+                Provedor de IA Ativo: <strong>mock</strong> | Armazenamento de chaves: <strong>macOS Keychain (Produção)</strong>
             </div>
+        </div>
+
+        <div class="card">
+            <h2>Seleção de Área da Tela (Fase 3)</h2>
+            <div style="margin-bottom: 16px; font-size: 14px;">
+                Região Ativa: <strong id="activeRegionText" style="color: #38bdf8;">Nenhuma área selecionada</strong>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn-analyze" onclick="openSelectionOverlay()">Abrir Overlay de Seleção</button>
+                <button class="btn-secondary" onclick="fetchRegion()">Atualizar Dados</button>
+                <button class="btn-stop" onclick="clearRegion()">Limpar Seleção</button>
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label for="regX">Coordenada X</label>
+                    <input type="number" id="regX" value="100" min="0" />
+                </div>
+                <div class="form-group">
+                    <label for="regY">Coordenada Y</label>
+                    <input type="number" id="regY" value="100" min="0" />
+                </div>
+                <div class="form-group">
+                    <label for="regWidth">Largura (px)</label>
+                    <input type="number" id="regWidth" value="800" min="1" />
+                </div>
+                <div class="form-group">
+                    <label for="regHeight">Altura (px)</label>
+                    <input type="number" id="regHeight" value="600" min="1" />
+                </div>
+            </div>
+            <button class="btn-secondary" onclick="saveManualRegion()">Definir Coordenadas Manuais</button>
         </div>
 
         <div class="card">
@@ -196,13 +232,74 @@
             badge.innerText = state.toUpperCase();
         }
 
+        function updateRegionDisplay(region) {
+            const text = document.getElementById('activeRegionText');
+            if (region && region.width > 0) {
+                text.innerText = `X: ${region.x}, Y: ${region.y} | Dimensões: ${region.width}x${region.height}px`;
+            } else {
+                text.innerText = 'Nenhuma área selecionada';
+            }
+        }
+
         async function fetchState() {
             try {
                 const res = await fetch('/api/monitor/state');
                 const data = await res.json();
                 updateStateBadge(data.state);
+                if (data.region) updateRegionDisplay(data.region);
             } catch (e) {
                 log('Erro ao buscar estado do monitor: ' + e.message);
+            }
+        }
+
+        async function fetchRegion() {
+            try {
+                const res = await fetch('/api/monitor/region');
+                const data = await res.json();
+                updateRegionDisplay(data.region);
+                log(data.region ? `Região ativa carregada: ${data.region.width}x${data.region.height}px` : 'Nenhuma região configurada');
+            } catch (e) {
+                log('Erro ao carregar região: ' + e.message);
+            }
+        }
+
+        function openSelectionOverlay() {
+            window.open('/selection', 'SelectionOverlay', 'width=800,height=600');
+            log('Overlay de seleção aberto.');
+        }
+
+        async function saveManualRegion() {
+            const x = parseInt(document.getElementById('regX').value);
+            const y = parseInt(document.getElementById('regY').value);
+            const width = parseInt(document.getElementById('regWidth').value);
+            const height = parseInt(document.getElementById('regHeight').value);
+
+            try {
+                const res = await fetch('/api/monitor/region', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ x, y, width, height })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    updateRegionDisplay(data.region);
+                    log(`Região salva: X:${x}, Y:${y}, ${width}x${height}px`);
+                } else {
+                    log('Erro: ' + data.error);
+                }
+            } catch (e) {
+                log('Erro ao salvar região: ' + e.message);
+            }
+        }
+
+        async function clearRegion() {
+            try {
+                const res = await fetch('/api/monitor/region', { method: 'DELETE' });
+                const data = await res.json();
+                updateRegionDisplay(null);
+                log('Região limpa.');
+            } catch (e) {
+                log('Erro ao limpar região: ' + e.message);
             }
         }
 
