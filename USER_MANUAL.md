@@ -1,0 +1,131 @@
+# Manual do Usuário — Screen AI (macOS)
+
+Bem-vindo ao **Screen AI**, a ferramenta inteligente de interpretação visual contínua, análise de tela e assistência multimodal desenvolvida nativamente para o **macOS**.
+
+---
+
+## 1. Visão Geral e Principais Recursos
+
+O **Screen AI** monitora uma área selecionada da sua tela, detecta mudanças visuais relevantes de forma inteligente e consulta um modelo de Inteligência Artificial para fornecer interpretações, explicações, traduções ou respostas em tempo real.
+
+### Principais Funcionalidades:
+- **Seleção Flexível de Região**: Escolha qualquer janela, aplicativo ou coordenada do seu monitor.
+- **Detecção Inteligente de Mudanças com Debounce**: Evita requisições repetitivas ou instáveis enquanto você ainda está digitando ou navegando.
+- **Modos de Análise Versáteis**: Interpretação geral, tradução instantânea, solução de dúvidas, resumos e prompts personalizados.
+- **Experiência Nativa no macOS**: Ícone na Barra de Menus (*MenuBar*), Overlay flutuante com suporte a transparência e Atalhos Globais de Teclado.
+- **Histórico Persistente**: Consulte, filtre e revise todas as suas análises passadas.
+- **Privacidade Rigorosa**: Nenhuma imagem é retida permanentemente ou enviada para servidores externos além da API de IA configurada.
+
+---
+
+## 2. Primeiros Passos e Assistente de Onboarding
+
+Ao abrir o Screen AI pela primeira vez, o assistente passo a passo (*Onboarding*) será exibido:
+
+```text
+  [ Boas-Vindas ] ──► [ Permissão de Tela ] ──► [ Configurar IA ] ──► [ Atalhos ] ──► [ Pronto! ]
+```
+
+### 2.1 Concedendo Permissão de Gravação de Tela
+O macOS exige permissão explícita para capturar áreas do monitor:
+1. Quando solicitado pelo aplicativo, clique em **Abrir Ajustes do Sistema**.
+2. Nos **Ajustes do macOS**, navegue até **Privacidade e Segurança $\rightarrow$ Gravação de Tela**.
+3. Ative a chave correspondente ao **Screen AI**.
+4. Retorne ao aplicativo para continuar.
+
+### 2.2 Configurando o Provedor de IA
+Você pode escolher entre:
+- **Google Gemini**: Para análises visuais de alta qualidade e interpretações complexas (requer chave de API).
+- **Mock (Simulador Local)**: Para testar o aplicativo e seus atalhos sem custo ou sem internet.
+
+---
+
+## 3. Guia de Uso no Dia a Dia
+
+### 3.1 Selecionando a Área de Monitoramento
+1. No painel principal ou no menu, clique em **Selecionar Região**.
+2. A tela de seleção será aberta. Clique e arraste o mouse sobre a área que deseja monitorar.
+3. Clique em **Confirmar Seleção**. As coordenadas serão salvas automaticamente.
+
+### 3.2 Iniciando o Monitoramento Contínuo
+1. Defina a ação desejada no painel (ex: *Explicar*, *Traduzir*, *Responder*).
+2. Clique no botão **Iniciar Monitor** (ou pressione o atalho `Cmd+Shift+M`).
+3. Sempre que houver uma alteração estável na área monitorada, o Screen AI capturará o frame, processará a imagem e exibirá a resposta da IA.
+
+### 3.3 Análise Sob Demanda (*Analyze Now*)
+Se você não deseja monitorar continuamente, mas quer analisar o que está na tela naquele momento exato:
+- Pressione o atalho global **`Cmd + Shift + A`** (ou clique em **Capturar e Analisar Agora** no painel).
+
+### 3.4 Pausando e Retomando
+- Para pausar temporariamente o monitor sem perder a área selecionada: clique em **Pausar** ou pressione **`Cmd + Shift + P`**.
+
+---
+
+## 4. Modos de Ação da Inteligência Artificial
+
+| Modo | Finalidade | Exemplo de Aplicação |
+| :--- | :--- | :--- |
+| **Interpretar** | Visão geral e descrição do que está acontecendo na tela | Dashboards, gráficos, telas de software |
+| **Traduzir** | Tradução do texto visível na região para o seu idioma | Artigos, documentos em inglês/outros idiomas |
+| **Responder** | Solução de exercícios, testes ou formulários na tela | Perguntas técnicas, quizzes, formulários |
+| **Explicar** | Explicação didática de código, fórmulas ou termos | Trechos de código no VS Code, fórmulas matemáticas |
+| **Resumir** | Síntese dos pontos principais do conteúdo exibido | Textos longos, logs extensos, apresentações |
+| **Personalizado** | Instruções livres definidas por você | *"Aponte apenas os erros de sintaxe nesta tela"* |
+
+---
+
+## 5. Recursos Nativos do macOS
+
+### 5.1 Atalhos Globais de Teclado
+
+Os atalhos funcionam mesmo quando o Screen AI está em segundo plano ou minimizado:
+
+| Atalho | Ação |
+| :--- | :--- |
+| **`Cmd + Shift + M`** | Iniciar ou Parar o Monitoramento Contínuo |
+| **`Cmd + Shift + P`** | Pausar ou Retomar o Monitoramento |
+| **`Cmd + Shift + A`** | Executar Análise Imediata (*Analyze Now*) |
+| **`Cmd + Shift + O`** | Abrir ou Fechar o Overlay Flutuante |
+
+### 5.2 Overlay Flutuante (*Floating Window*)
+- Uma janela compacta, sempre visível sobre outros apps (*Always-on-Top*), que exibe a última resposta gerada pela IA e o status atual do monitor.
+- Pode ser posicionada em qualquer canto da tela através das **Configurações**.
+
+### 5.3 Barra de Menus (*MenuBar*)
+- O ícone do Screen AI permanece no canto superior direito da tela do macOS.
+- Permite iniciar/parar o monitoramento, acionar o Overlay ou abrir as Configurações com um clique.
+
+---
+
+## 6. Histórico de Análises
+
+- Todas as análises realizadas ficam disponíveis na aba **Histórico**.
+- Você pode:
+  - **Revisar** a resposta e o horário de cada análise.
+  - **Filtrar** por tipo de ação realizada.
+  - **Excluir** itens individuais ou limpar todo o histórico com um clique.
+  - Configurar a **retenção automática** (ex: manter sempre, apagar após 7 dias ou 30 dias).
+
+---
+
+## 7. Painel de Configurações e Diagnóstico
+
+Acesse **Configurações** no painel principal ou no menu para ajustar:
+
+- **Geral**: Idioma da interface (Português, Inglês, Espanhol) e posição do Overlay.
+- **Monitoramento**: Intervalo de captura (ms), tempo de debounce (estabilização) e sensibilidade de mudança.
+- **Inteligência Artificial**: Seleção do modelo (Gemini Flash / Pro), chave de API e tempo limite (*timeout*).
+- **Diagnóstico**: Exibição do estado operacional do sistema, métricas de latência, botão de exportação em `.JSON` e botão para **Limpar Arquivos Temporários**.
+
+---
+
+## 8. Dúvidas Frequentes (FAQ)
+
+**P: O Screen AI consome muita bateria ou memória?**
+> R: Não. Graças à tecnologia de detecção perceptual de mudanças, imagens só são processadas quando há alterações visíveis reais, economizando CPU, rede e bateria.
+
+**P: Minhas capturas de tela ficam salvas na nuvem?**
+> R: Não. As imagens processadas são transmitidas de forma efêmera diretamente para a API de IA escolhida e os arquivos temporários locais são removidos automaticamente pelo aplicativo.
+
+**P: O aplicativo funciona sem internet?**
+> R: Você pode selecionar o provedor **Mock** nas configurações para usar todos os recursos de captura, overlay e atalhos localmente sem necessidade de conexão.

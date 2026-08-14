@@ -4,6 +4,24 @@ Este documento descreve o procedimento oficial e reproduzível para compilar, em
 
 ---
 
+## Atalhos Rápidos com Makefile
+
+Você pode usar o `Makefile` para automatizar todas as etapas:
+
+```bash
+make help          # Exibe todos os comandos disponíveis
+make build         # Pipeline completo: compila assets, gera .app, cria .dmg e gera checksum
+make test          # Roda os testes unitários e de integração
+make serve         # Roda a aplicação Desktop nativa em desenvolvimento
+make open-app      # Abre o aplicativo .app compilado
+make open-dmg      # Monta o instalador .dmg compilado
+make clean         # Limpa artefatos temporários e de build
+```
+
+Para procedimentos de atualização de versão, consulte também o [`UPDATE_MANUAL.md`](file:///Users/roger/Desktop/docker/screen-ai/UPDATE_MANUAL.md).
+
+---
+
 ## 1. Pré-requisitos do Ambiente
 
 - **Sistema Operacional**: macOS Sonoma 14.7+ (Arquiteturas `x86_64` / Intel ou `arm64` / Apple Silicon)

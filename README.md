@@ -1,35 +1,49 @@
-Princípios do projeto
+# Screen AI — Visual Screen Understanding & Continuous Analysis (macOS)
 
-O desenvolvimento deverá seguir cinco princípios fundamentais:
+O **Screen AI** é uma aplicação nativa para **macOS** projetada para monitoramento inteligente de regiões da tela, detecção perceptual de mudanças e análise visual multimodal via Inteligência Artificial (Google Gemini ou provedor local).
 
-Native First — utilizar as APIs nativas do macOS quando a funcionalidade exigir acesso ao sistema operacional.
-Modularidade — separar captura, processamento, IA e interface.
-Eficiência — nunca enviar continuamente todos os frames para a IA.
-Privacidade — capturar somente o necessário e não armazenar imagens por padrão.
-Provider Agnostic — permitir trocar o provedor de IA sem modificar o núcleo da aplicação.
-Tecnologias
-Tecnologia	Versão
-macOS	14.7.2
-Arquitetura	Intel x86_64
-Xcode	16.1
-Swift	6.0.3
-PHP	8.4.17
-Laravel	13.25.0
-NativePHP Desktop	2.2.1
-Node.js	22.23.2
-npm	10.9.8
-Composer	2.10.2
-Estratégia de desenvolvimento
+---
 
-O projeto será desenvolvido incrementalmente em fases.
+## 📚 Documentação e Manuais
 
-Cada fase deverá:
+- 📖 **[Manual do Usuário (USER_MANUAL.md)](file:///Users/roger/Desktop/docker/screen-ai/USER_MANUAL.md)**: Guia completo de utilização, seleção de tela, atalhos do macOS, modos de análise e configurações.
+- 🛠️ **[Guia de Build e Compilação (BUILD.md)](file:///Users/roger/Desktop/docker/screen-ai/BUILD.md)**: Instruções de compilação, empacotamento `.app` e geração do instalador `.dmg`.
+- 🔄 **[Manual de Atualização (UPDATE_MANUAL.md)](file:///Users/roger/Desktop/docker/screen-ai/UPDATE_MANUAL.md)**: Procedimentos de atualização in-app, atualização manual e publicação de novas versões.
+- 🩺 **[Guia de Troubleshooting (TROUBLESHOOTING.md)](file:///Users/roger/Desktop/docker/screen-ai/TROUBLESHOOTING.md)**: Soluções para permissões de tela, Circuit Breaker e problemas comuns.
+- 📋 **[Checklist de Release (RELEASE_CHECKLIST.md)](file:///Users/roger/Desktop/docker/screen-ai/RELEASE_CHECKLIST.md)**: Checklist de 20 pontos para liberação de produção.
+- 🏛️ **[Arquitetura do Sistema (ARCHITECTURE.md)](file:///Users/roger/Desktop/docker/screen-ai/ARCHITECTURE.md)**: Detalhamento técnico da arquitetura híbrida Laravel + NativePHP + Electron.
 
-possuir um objetivo claramente definido;
-ser implementada isoladamente;
-ser testada antes da próxima fase;
-evitar antecipação de funcionalidades futuras;
-manter a documentação atualizada.
+---
 
-A sequência planejada é:
-# screen-ai
+## ⚡ Início Rápido (Makefile)
+
+```bash
+make help          # Exibe todos os comandos disponíveis
+make build         # Compila assets, gera o .app e o instalador .dmg
+make serve         # Inicia a aplicação Desktop em modo de desenvolvimento
+make test          # Executa a suíte de testes completa do PHPUnit
+make open-app      # Abre o aplicativo compilado .app no macOS
+```
+
+---
+
+## 🎯 Princípios Fundamentais
+
+1. **Native First**: Utilização de APIs nativas do macOS (ScreenCaptureKit, MenuBar, Atalhos Globais).
+2. **Modularidade**: Camadas desacopladas de captura, detecção, processamento, IA e interface.
+3. **Eficiência**: Detecção perceptual de mudanças com debounce inteligente para economizar CPU e requisições.
+4. **Privacidade Rigorosa**: Nenhuma imagem é armazenada permanentemente; limpeza automática de temporários.
+5. **Provider Agnostic**: Suporte flexível a múltiplos modelos e provedores de IA.
+
+---
+
+## 💻 Stack Tecnológica
+
+| Tecnologia | Versão |
+| :--- | :--- |
+| **Sistema Operacional** | macOS Sonoma 14.7+ (x86_64 / arm64) |
+| **PHP** | 8.4.x |
+| **Laravel** | 13.x |
+| **NativePHP Desktop** | 2.2.1 |
+| **Node.js** | 22.x LTS |
+| **Electron** | 38.x |
