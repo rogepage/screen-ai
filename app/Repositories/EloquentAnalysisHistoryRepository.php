@@ -21,6 +21,7 @@ class EloquentAnalysisHistoryRepository implements AnalysisHistoryRepositoryInte
             'duration_ms' => $dto->durationMs,
             'user_instruction' => $dto->userInstruction,
             'language' => $dto->language,
+            'image_name' => $dto->imageName,
         ]);
 
         return AnalysisHistoryDTO::fromModel($model);
@@ -74,7 +75,7 @@ class EloquentAnalysisHistoryRepository implements AnalysisHistoryRepositoryInte
 
     public function clearAll(): bool
     {
-        AnalysisHistory::truncate();
+        AnalysisHistory::query()->delete();
 
         return true;
     }

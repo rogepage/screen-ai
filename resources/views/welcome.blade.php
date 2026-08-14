@@ -154,8 +154,9 @@
 <body>
     <div class="container">
         <header>
-            <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                 <h1 style="display: inline-block; margin: 0;">Screen AI — Painel de Controle</h1>
+                <span style="font-size: 11px; font-weight: 700; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); padding: 2px 7px; border-radius: 4px; letter-spacing: 0.5px;">v{{ config('nativephp.version', '1.0.0') }}</span>
                 <span id="stateBadge" class="badge stopped">STOPPED</span>
                 <span id="healthBadge" style="font-size: 12px; font-weight: 600; color: #22c55e;">● Operacional</span>
             </div>
@@ -173,126 +174,29 @@
             <button class="btn-secondary" style="font-size: 12px; padding: 4px 10px;" onclick="openSystemSettings()">Abrir Ajustes do macOS</button>
         </div>
 
+        <!-- CARD PRINCIPAL: MONITOR DE PRINTS DO DESKTOP -->
         <div class="card" style="border: 1px solid #38bdf8;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                 <h2 style="margin: 0; color: #38bdf8;">📂 Monitor de Capturas do Desktop (macOS)</h2>
                 <span id="watcherStatusBadge" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-size: 11px; padding: 3px 8px; border-radius: 4px; font-weight: 600;">PRONTO</span>
             </div>
-            <p style="font-size: 13px; color: var(--muted-text); margin-bottom: 12px;">
-                O Screen AI monitora a pasta <strong>/Users/roger/Desktop</strong>. Basta tirar um print com <strong>Cmd+Shift+4</strong> ou <strong>Cmd+Shift+3</strong> no macOS para que a IA analise automaticamente o conteúdo!
+            <p style="font-size: 13px; color: var(--muted-text); margin-bottom: 14px;">
+                O Screen AI monitora a pasta <strong>/Users/roger/Desktop</strong>. Tire um print com <strong>Cmd+Shift+4</strong> ou <strong>Cmd+Shift+3</strong> no macOS para que a IA analise automaticamente o conteúdo!
             </p>
+
             <div class="grid-2" style="margin-bottom: 12px;">
-                <div class="form-group">
-                    <label for="monitorMode">Modo de Operação:</label>
-                    <select id="monitorMode" onchange="toggleMonitorMode()">
-                        <option value="desktop" selected>📂 Monitorar Pasta Desktop (Recomendado - Cmd+Shift+4)</option>
-                        <option value="screen">🖥️ Captura Contínua de Região (ScreenCaptureKit)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="desktopFolderPath">Pasta Monitorada:</label>
-                    <input type="text" id="desktopFolderPath" value="/Users/roger/Desktop" />
-                </div>
-            </div>
-            <div class="btn-group">
-                <button class="btn-start" onclick="startMonitor()">▶ Iniciar Monitoramento</button>
-                <button class="btn-pause" onclick="pauseMonitor()">⏸ Pausar</button>
-                <button class="btn-stop" onclick="stopMonitor()">⏹ Parar</button>
-                <button class="btn-secondary" onclick="checkDesktopPrintsNow()">Verificar Prints Agora</button>
-            </div>
-        </div>
-
-        <div class="card">
-            <h2>Controle do Monitor</h2>
-            <div style="font-size: 13px; color: var(--muted-text);">
-                Provedor de IA Ativo: <strong>mock</strong> | Armazenamento de chaves: <strong>macOS Keychain (Produção)</strong>
-            </div>
-        </div>
-
-        <div class="card">
-            <h2>Orquestração do Monitoramento Contínuo (Fase 10)</h2>
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 12px; text-align: center;">
-                <div style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px;">
-                    <div style="font-size: 11px; color: var(--muted-text);">Ciclos Executados</div>
-                    <div id="metricCycles" style="font-size: 18px; font-weight: 700; color: #38bdf8;">0</div>
-                </div>
-                <div style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px;">
-                    <div style="font-size: 11px; color: var(--muted-text);">Capturas Realizadas</div>
-                    <div id="metricCaptures" style="font-size: 18px; font-weight: 700; color: #22c55e;">0</div>
-                </div>
-                <div style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px;">
-                    <div style="font-size: 11px; color: var(--muted-text);">Estabilizados (Debounce)</div>
-                    <div id="metricDebounced" style="font-size: 18px; font-weight: 700; color: #eab308;">0</div>
-                </div>
-                <div style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px;">
-                    <div style="font-size: 11px; color: var(--muted-text);">Jobs Enfileirados</div>
-                    <div id="metricQueued" style="font-size: 18px; font-weight: 700; color: #a855f7;">0</div>
-                </div>
-            </div>
-            <div class="btn-group" style="margin: 0;">
-                <button class="btn-secondary" onclick="triggerContinuousCycle()">Executar Ciclo de Loop Manual</button>
-                <button class="btn-secondary" onclick="fetchPipelineStats()">Atualizar Métricas</button>
-            </div>
-        </div>
-
-        <div class="card">
-            <h2>Seleção de Área da Tela (Fase 3)</h2>
-            <div style="margin-bottom: 16px; font-size: 14px;">
-                Região Ativa: <strong id="activeRegionText" style="color: #38bdf8;">Nenhuma área selecionada</strong>
-            </div>
-
-            <div class="btn-group">
-                <button class="btn-analyze" onclick="openSelectionOverlay()">Abrir Overlay de Seleção</button>
-                <button class="btn-secondary" onclick="fetchRegion()">Atualizar Dados</button>
-                <button class="btn-stop" onclick="clearRegion()">Limpar Seleção</button>
-            </div>
-
-            <div class="grid-2">
-                <div class="form-group">
-                    <label for="regX">Coordenada X</label>
-                    <input type="number" id="regX" value="100" min="0" />
-                </div>
-                <div class="form-group">
-                    <label for="regY">Coordenada Y</label>
-                    <input type="number" id="regY" value="100" min="0" />
-                </div>
-                <div class="form-group">
-                    <label for="regWidth">Largura (px)</label>
-                    <input type="number" id="regWidth" value="800" min="1" />
-                </div>
-                <div class="form-group">
-                    <label for="regHeight">Altura (px)</label>
-                    <input type="number" id="regHeight" value="600" min="1" />
-                </div>
-            </div>
-            <button class="btn-secondary" onclick="saveManualRegion()">Definir Coordenadas Manuais</button>
-        </div>
-
-        <div class="card">
-            <h2>Captura Nativa de Tela (ScreenCaptureKit - Fase 4)</h2>
-            <div class="btn-group">
-                <button class="btn-start" onclick="triggerCapture()">Capturar Frame da Área Selecionada</button>
-            </div>
-            <div id="captureDetails" class="capture-info" style="display: none;">
-                Nenhuma captura realizada nesta sessão.
-            </div>
-        </div>
-
-        <div class="card">
-            <h2>Orquestração e Modos de Análise de IA (Fase 8)</h2>
-            <div class="grid-2">
-                <div class="form-group">
-                    <label for="actionType">Modo / Ação de Análise</label>
+                <div class="form-group" style="margin: 0;">
+                    <label for="actionType">Ação Desejada da IA</label>
                     <select id="actionType" onchange="toggleCustomInstruction()">
                         <option value="interpret">Interpretar Conteúdo Visual</option>
                         <option value="translate">Traduzir Texto Presente</option>
                         <option value="answer">Responder Pergunta Exibida</option>
-                        <option value="explain">Explicar Conteúdo / Erro / Código</option>
+                        <option value="explain" selected>Explicar Conteúdo / Erro / Código</option>
                         <option value="summarize">Resumir Conteúdo da Tela</option>
                         <option value="custom">Instrução Personalizada (Custom)</option>
                     </select>
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="margin: 0;">
                     <label for="responseLanguage">Idioma da Resposta</label>
                     <select id="responseLanguage">
                         <option value="pt-BR" selected>Português (Brasil)</option>
@@ -303,52 +207,114 @@
                 </div>
             </div>
 
-            <div class="form-group" id="customInstructionGroup" style="display: none;">
+            <div class="form-group" id="customInstructionGroup" style="display: none; margin-bottom: 12px;">
                 <label for="userInstruction">Instrução Personalizada do Usuário</label>
-                <textarea id="userInstruction" rows="3" placeholder="Ex: Explique o erro exibido nesta imagem de forma didática..."></textarea>
+                <textarea id="userInstruction" rows="2" placeholder="Ex: Aponte apenas os erros de sintaxe nesta imagem..."></textarea>
             </div>
 
-            <div class="btn-group">
-                <button class="btn-analyze" id="btnAnalyzeNow" onclick="runAnalysisNow()">Analisar Agora</button>
+            <div class="btn-group" style="margin-bottom: 12px;">
+                <button class="btn-start" onclick="startMonitor()">▶ Iniciar Monitoramento</button>
+                <button class="btn-pause" onclick="pauseMonitor()">⏸ Pausar</button>
+                <button class="btn-stop" onclick="stopMonitor()">⏹ Parar</button>
+                <button class="btn-secondary" onclick="checkDesktopPrintsNow()">📸 Verificar Prints Agora</button>
             </div>
 
-            <div id="analysisStatus" style="display: none; font-size: 13px; margin-top: 8px; color: var(--muted-text);">
-                Status: <span id="analysisStatusText">Pronto</span>
+            <!-- ÚLTIMA RESPOSTA EM DESTAQUE -->
+            <div id="lastAnalysisCard" style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 12px; margin-top: 10px;">
+                <div style="font-size: 11px; font-weight: 700; color: #38bdf8; text-transform: uppercase; margin-bottom: 6px;" id="lastAnalysisHeader">Última Resposta da IA</div>
+                <div id="analysisStatus" style="font-size: 12px; color: var(--muted-text); margin-bottom: 6px; display: none;"></div>
+                <div id="analysisContent" style="font-size: 13px; color: #f1f5f9; line-height: 1.5; white-space: pre-wrap;">Aguardando captura de tela no Desktop (Cmd+Shift+4)...</div>
             </div>
         </div>
 
-        <div class="card">
-            <h2>Experiência Nativa do macOS (Fase 11)</h2>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
-                <div style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px;">
-                    <div style="font-size: 12px; font-weight: 700; color: #38bdf8; margin-bottom: 6px;">ATALHOS GLOBAIS ATIVOS</div>
-                    <ul style="margin: 0; padding-left: 16px; font-size: 13px; color: #e2e8f0; line-height: 1.6;">
-                        <li><kbd style="background: var(--border-color); padding: 2px 5px; border-radius: 3px;">⌘ + Shift + S</kbd> : Iniciar / Parar</li>
-                        <li><kbd style="background: var(--border-color); padding: 2px 5px; border-radius: 3px;">⌘ + Shift + P</kbd> : Pausar / Resumir</li>
-                        <li><kbd style="background: var(--border-color); padding: 2px 5px; border-radius: 3px;">⌘ + Shift + A</kbd> : Analisar Agora</li>
-                        <li><kbd style="background: var(--border-color); padding: 2px 5px; border-radius: 3px;">⌘ + Shift + O</kbd> : Alternar Overlay</li>
-                    </ul>
-                </div>
-                <div style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; display: flex; flex-direction: column; justify-content: space-between;">
-                    <div>
-                        <div style="font-size: 12px; font-weight: 700; color: #38bdf8; margin-bottom: 6px;">OVERLAY FLUTUANTE DISCRETO</div>
-                        <div style="font-size: 13px; color: var(--muted-text); line-height: 1.4;">
-                            Janela nativa translúcida com indicador de status em tempo real e proteção anti-loop de captura.
+        <!-- SUBMENU RECOLHÍVEL: FERRAMENTAS AVANÇADAS -->
+        <div class="card" style="border: 1px solid var(--border-color);">
+            <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleAdvancedSubmenu()">
+                <h3 style="margin: 0; font-size: 14px; color: #cbd5e1;">⚙️ Ferramentas Avançadas e Outros Modos de Captura</h3>
+                <button class="btn-secondary" id="btnToggleAdvanced" style="font-size: 12px; padding: 3px 10px;">+ Expandir</button>
+            </div>
+
+            <div id="advancedSubmenuContent" style="display: none; margin-top: 16px;">
+                <!-- Orquestração do Monitoramento Contínuo (Fase 10) -->
+                <div style="border-top: 1px solid var(--border-color); padding-top: 12px; margin-bottom: 16px;">
+                    <h4 style="margin: 0 0 10px 0; color: #94a3b8; font-size: 13px;">Loop Contínuo e Métricas de Captura</h4>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 12px; text-align: center;">
+                        <div style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 6px;">
+                            <div style="font-size: 10px; color: var(--muted-text);">Ciclos</div>
+                            <div id="metricCycles" style="font-size: 16px; font-weight: 700; color: #38bdf8;">0</div>
+                        </div>
+                        <div style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 6px;">
+                            <div style="font-size: 10px; color: var(--muted-text);">Capturas</div>
+                            <div id="metricCaptures" style="font-size: 16px; font-weight: 700; color: #22c55e;">0</div>
+                        </div>
+                        <div style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 6px;">
+                            <div style="font-size: 10px; color: var(--muted-text);">Debounce</div>
+                            <div id="metricDebounced" style="font-size: 16px; font-weight: 700; color: #eab308;">0</div>
+                        </div>
+                        <div style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 6px;">
+                            <div style="font-size: 10px; color: var(--muted-text);">Jobs</div>
+                            <div id="metricQueued" style="font-size: 16px; font-weight: 700; color: #a855f7;">0</div>
                         </div>
                     </div>
-                    <div class="btn-group" style="margin: 0; margin-top: 10px;">
-                        <button class="btn-secondary" onclick="openFloatingOverlay()">Abrir Janela de Overlay</button>
+                    <div class="btn-group" style="margin: 0;">
+                        <button class="btn-secondary" style="font-size: 12px;" onclick="triggerContinuousCycle()">Executar Loop Manual</button>
+                        <button class="btn-secondary" style="font-size: 12px;" onclick="fetchPipelineStats()">Atualizar Métricas</button>
+                    </div>
+                </div>
+
+                <!-- Seleção de Área da Tela (Fase 3) -->
+                <div style="border-top: 1px solid var(--border-color); padding-top: 12px; margin-bottom: 16px;">
+                    <h4 style="margin: 0 0 10px 0; color: #94a3b8; font-size: 13px;">Seleção de Área e Região Fixa</h4>
+                    <div style="margin-bottom: 10px; font-size: 13px;">
+                        Região Ativa: <strong id="activeRegionText" style="color: #38bdf8;">Nenhuma área selecionada</strong>
+                    </div>
+                    <div class="btn-group" style="margin-bottom: 10px;">
+                        <button class="btn-secondary" style="font-size: 12px;" onclick="openSelectionOverlay()">Abrir Overlay de Seleção</button>
+                        <button class="btn-secondary" style="font-size: 12px;" onclick="fetchRegion()">Atualizar Dados</button>
+                        <button class="btn-stop" style="font-size: 12px;" onclick="clearRegion()">Limpar Seleção</button>
+                    </div>
+                    <div class="grid-2">
+                        <div class="form-group" style="margin-bottom: 6px;">
+                            <label for="regX">X (px)</label>
+                            <input type="number" id="regX" value="100" min="0" />
+                        </div>
+                        <div class="form-group" style="margin-bottom: 6px;">
+                            <label for="regY">Y (px)</label>
+                            <input type="number" id="regY" value="100" min="0" />
+                        </div>
+                        <div class="form-group" style="margin-bottom: 6px;">
+                            <label for="regWidth">Largura (px)</label>
+                            <input type="number" id="regWidth" value="800" min="1" />
+                        </div>
+                        <div class="form-group" style="margin-bottom: 6px;">
+                            <label for="regHeight">Altura (px)</label>
+                            <input type="number" id="regHeight" value="600" min="1" />
+                        </div>
+                    </div>
+                    <button class="btn-secondary" style="font-size: 12px; margin-top: 6px;" onclick="saveManualRegion()">Definir Coordenadas Manuais</button>
+                </div>
+
+                <!-- ScreenCaptureKit & Overlay (Fases 4 e 11) -->
+                <div style="border-top: 1px solid var(--border-color); padding-top: 12px;">
+                    <h4 style="margin: 0 0 10px 0; color: #94a3b8; font-size: 13px;">Captura Nativa e Overlay Flutuante</h4>
+                    <div class="btn-group" style="margin: 0;">
+                        <button class="btn-secondary" style="font-size: 12px;" onclick="triggerCapture()">Capturar Frame da Região</button>
+                        <button class="btn-secondary" style="font-size: 12px;" onclick="openFloatingOverlay()">Abrir Janela de Overlay</button>
+                    </div>
+                    <div id="captureDetails" class="capture-info" style="display: none; margin-top: 8px;">
+                        Nenhuma captura realizada nesta sessão.
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- CARD DE HISTÓRICO DE ANÁLISES -->
         <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <h2 style="margin: 0;">Histórico de Análises (Fase 9)</h2>
+                <h2 style="margin: 0;">Histórico de Análises</h2>
                 <div class="btn-group" style="margin: 0;">
-                    <button class="btn-secondary" onclick="loadHistory(1)">Atualizar</button>
-                    <button class="btn-stop" onclick="clearAllHistory()">Limpar Todo o Histórico</button>
+                    <button class="btn-secondary" id="btnRefreshHistory" onclick="loadHistory(1)">↻ Atualizar</button>
+                    <button class="btn-stop" onclick="clearAllHistory()">🗑 Limpar Todo o Histórico</button>
                 </div>
             </div>
 
@@ -555,7 +521,7 @@
         }
 
         async function startMonitor() {
-            const mode = document.getElementById('monitorMode').value;
+            const mode = document.getElementById('monitorMode')?.value || 'desktop';
             const actionType = document.getElementById('actionType').value;
             const badge = document.getElementById('watcherStatusBadge');
 
@@ -665,13 +631,31 @@
             }
         }
 
+        function toggleAdvancedSubmenu() {
+            const content = document.getElementById('advancedSubmenuContent');
+            const btn = document.getElementById('btnToggleAdvanced');
+            if (content.style.display === 'none' || content.style.display === '') {
+                content.style.display = 'block';
+                btn.innerText = '- Ocultar';
+            } else {
+                content.style.display = 'none';
+                btn.innerText = '+ Expandir';
+            }
+        }
+
         let currentHistoryPage = 1;
         let totalHistoryPages = 1;
 
         async function loadHistory(page = 1) {
             currentHistoryPage = page;
-            const action = document.getElementById('filterAction').value;
-            const status = document.getElementById('filterStatus').value;
+            const action = document.getElementById('filterAction')?.value || '';
+            const status = document.getElementById('filterStatus')?.value || '';
+            const refreshBtn = document.getElementById('btnRefreshHistory');
+
+            if (refreshBtn) {
+                refreshBtn.innerText = '↻ Carregando...';
+                refreshBtn.disabled = true;
+            }
 
             let url = `/api/history?page=${page}&per_page=5`;
             if (action) url += `&action_type=${encodeURIComponent(action)}`;
@@ -702,27 +686,29 @@
 
                     data.items.forEach(item => {
                         const itemCard = document.createElement('div');
-                        itemCard.style.cssText = 'background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; display: flex; justify-content: space-between; align-items: center;';
+                        itemCard.style.cssText = 'background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 12px; display: flex; justify-content: space-between; align-items: center; gap: 12px;';
 
                         const isSuccess = item.status === 'success';
                         const badgeColor = isSuccess ? 'var(--success)' : 'var(--danger)';
-                        const previewText = item.response_text ? (item.response_text.length > 70 ? item.response_text.substring(0, 70) + '...' : item.response_text) : (item.error_message || 'Sem conteúdo');
+                        const previewText = item.response_text ? (item.response_text.length > 80 ? item.response_text.substring(0, 80) + '...' : item.response_text) : (item.error_message || 'Sem conteúdo');
                         const dateFormatted = item.created_at ? new Date(item.created_at).toLocaleString('pt-BR') : 'Data não informada';
+                        const imageName = item.image_name ? item.image_name : 'Captura de Tela';
 
                         itemCard.innerHTML = `
-                            <div style="display: flex; flex-direction: column; gap: 4px; overflow: hidden; margin-right: 12px;">
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <span style="font-size: 11px; font-weight: 700; background: var(--border-color); padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">${item.action_type}</span>
-                                    <span style="font-size: 11px; font-weight: 700; color: ${badgeColor}; text-transform: uppercase;">${item.status}</span>
-                                    <span style="font-size: 12px; color: var(--muted-text);">${dateFormatted}</span>
+                            <div style="display: flex; flex-direction: column; gap: 4px; overflow: hidden; flex-grow: 1;">
+                                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                    <span style="font-size: 13px; font-weight: 700; color: #38bdf8;">📸 ${imageName}</span>
+                                    <span style="font-size: 10px; font-weight: 700; background: var(--border-color); padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">${item.action_type}</span>
+                                    <span style="font-size: 10px; font-weight: 700; color: ${badgeColor}; text-transform: uppercase;">${item.status}</span>
+                                    <span style="font-size: 11px; color: var(--muted-text);">${dateFormatted}</span>
                                 </div>
-                                <div style="font-size: 13px; color: #f1f5f9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                <div style="font-size: 12px; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;">
                                     ${previewText}
                                 </div>
                             </div>
                             <div style="display: flex; gap: 6px; flex-shrink: 0;">
-                                <button class="btn-secondary" style="padding: 4px 8px; font-size: 12px;" onclick="viewHistoryDetails(${item.id})">Ver</button>
-                                <button class="btn-stop" style="padding: 4px 8px; font-size: 12px;" onclick="deleteHistory(${item.id})">✕</button>
+                                <button class="btn-secondary" style="padding: 5px 10px; font-size: 12px;" onclick="viewHistoryDetails(${item.id}, this)">Ver</button>
+                                <button class="btn-stop" style="padding: 5px 10px; font-size: 12px;" onclick="deleteHistory(${item.id})">✕ Remover</button>
                             </div>
                         `;
                         list.appendChild(itemCard);
@@ -730,6 +716,11 @@
                 }
             } catch (e) {
                 log('Erro ao carregar histórico: ' + e.message);
+            } finally {
+                if (refreshBtn) {
+                    refreshBtn.innerText = '↻ Atualizar';
+                    refreshBtn.disabled = false;
+                }
             }
         }
 
@@ -745,7 +736,13 @@
             }
         }
 
-        async function viewHistoryDetails(id) {
+        async function viewHistoryDetails(id, btnElement) {
+            const originalText = btnElement ? btnElement.innerText : 'Ver';
+            if (btnElement) {
+                btnElement.innerText = '⌛ Carregando...';
+                btnElement.disabled = true;
+            }
+
             try {
                 const res = await fetch(`/api/history/${id}`);
                 const data = await res.json();
@@ -757,21 +754,28 @@
                 const item = data.item;
                 const modal = document.getElementById('detailsModal');
                 const content = document.getElementById('modalContent');
+                const imageName = item.image_name ? item.image_name : 'Captura de Tela';
 
                 content.innerHTML = `
+                    <p><strong>Imagem:</strong> <span style="color: #38bdf8; font-weight: bold;">📸 ${imageName}</span></p>
                     <p><strong>Ação:</strong> <span style="text-transform: uppercase;">${item.action_type}</span></p>
                     <p><strong>Status:</strong> <span style="font-weight: bold; color: ${item.status === 'success' ? 'var(--success)' : 'var(--danger)'};">${item.status.toUpperCase()}</span></p>
                     <p><strong>Provedor / Modelo:</strong> ${item.provider} (${item.model || 'N/A'})</p>
                     <p><strong>Duração:</strong> ${item.duration_ms ? item.duration_ms + 'ms' : 'N/A'}</p>
                     <p><strong>Data/Hora:</strong> ${item.created_at ? new Date(item.created_at).toLocaleString('pt-BR') : 'N/A'}</p>
                     ${item.user_instruction ? `<p><strong>Instrução do Usuário:</strong> ${item.user_instruction}</p>` : ''}
-                    ${item.response_text ? `<div style="margin-top: 12px;"><strong>Resposta da IA:</strong><div style="background: var(--bg-color); padding: 12px; border-radius: 6px; border: 1px solid var(--border-color); margin-top: 6px; white-space: pre-wrap; font-family: monospace; font-size: 13px;">${item.response_text}</div></div>` : ''}
+                    ${item.response_text ? `<div style="margin-top: 12px;"><strong>Resposta da IA:</strong><div style="background: var(--bg-color); padding: 12px; border-radius: 6px; border: 1px solid var(--border-color); margin-top: 6px; white-space: pre-wrap; font-family: monospace; font-size: 13px; max-height: 250px; overflow-y: auto;">${item.response_text}</div></div>` : ''}
                     ${item.error_message ? `<div style="margin-top: 12px; color: var(--danger);"><strong>Mensagem de Erro:</strong> ${item.error_message}</div>` : ''}
                 `;
 
                 modal.style.display = 'flex';
             } catch (e) {
                 alert('Erro ao buscar detalhes da análise: ' + e.message);
+            } finally {
+                if (btnElement) {
+                    btnElement.innerText = originalText;
+                    btnElement.disabled = false;
+                }
             }
         }
 
@@ -780,7 +784,7 @@
         }
 
         async function deleteHistory(id) {
-            if (!confirm('Deseja realmente excluir este registro de análise?')) return;
+            if (!confirm('Deseja realmente remover esta análise do histórico?')) return;
 
             try {
                 const res = await fetch(`/api/history/${id}`, { method: 'DELETE' });
@@ -789,15 +793,15 @@
                     log(`Registro de histórico #${id} excluído com sucesso.`);
                     loadHistory(currentHistoryPage);
                 } else {
-                    log('Erro ao excluir: ' + (data.error || 'Erro desconhecido'));
+                    alert('Erro ao excluir: ' + (data.error || 'Erro desconhecido'));
                 }
             } catch (e) {
-                log('Erro ao excluir registro: ' + e.message);
+                alert('Erro ao excluir registro: ' + e.message);
             }
         }
 
         async function clearAllHistory() {
-            if (!confirm('Tem certeza que deseja apagar todo o histórico de análises? Esta ação não pode ser desfeita.')) return;
+            if (!confirm('Tem certeza de que deseja apagar TODO o histórico de análises? Esta ação não pode ser desfeita.')) return;
 
             try {
                 const res = await fetch('/api/history', { method: 'DELETE' });
@@ -806,10 +810,10 @@
                     log('Todo o histórico de análises foi limpo com sucesso.');
                     loadHistory(1);
                 } else {
-                    log('Erro ao limpar histórico: ' + (data.error || 'Erro desconhecido'));
+                    alert('Erro ao limpar histórico: ' + (data.error || 'Erro desconhecido'));
                 }
             } catch (e) {
-                log('Erro ao limpar histórico: ' + e.message);
+                alert('Erro ao limpar histórico: ' + e.message);
             }
         }
 

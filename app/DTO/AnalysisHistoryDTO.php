@@ -19,6 +19,7 @@ readonly class AnalysisHistoryDTO
         public ?float $durationMs = null,
         public ?string $userInstruction = null,
         public ?string $language = null,
+        public ?string $imageName = null,
         public ?string $createdAt = null
     ) {}
 
@@ -35,6 +36,7 @@ readonly class AnalysisHistoryDTO
             'duration_ms' => $this->durationMs,
             'user_instruction' => $this->userInstruction,
             'language' => $this->language,
+            'image_name' => $this->imageName,
             'created_at' => $this->createdAt,
         ];
     }
@@ -56,6 +58,7 @@ readonly class AnalysisHistoryDTO
             durationMs: isset($data['duration_ms']) ? (float) $data['duration_ms'] : null,
             userInstruction: $data['user_instruction'] ?? null,
             language: $data['language'] ?? null,
+            imageName: $data['image_name'] ?? null,
             createdAt: $data['created_at'] ?? null
         );
     }
@@ -73,6 +76,7 @@ readonly class AnalysisHistoryDTO
             durationMs: $model->duration_ms !== null ? (float) $model->duration_ms : null,
             userInstruction: $model->user_instruction,
             language: $model->language,
+            imageName: $model->image_name,
             createdAt: $model->created_at?->toIso8601String()
         );
     }

@@ -23,6 +23,7 @@ class AnalysisHistory extends Model
         'duration_ms',
         'user_instruction',
         'language',
+        'image_name',
     ];
 
     protected $casts = [

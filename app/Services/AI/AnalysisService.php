@@ -2,6 +2,7 @@
 
 namespace App\Services\AI;
 
+use App\DTO\AiPromptDTO;
 use App\DTO\AiResponseDTO;
 use App\DTO\ProcessedImageDTO;
 use App\Enums\ActionType;
@@ -28,6 +29,15 @@ class AnalysisService
             action: $action,
             userInstruction: $userInstruction,
             language: $language
+        );
+
+        $imageName = basename(! empty($image->originalPath) ? $image->originalPath : $image->processedPath);
+        $promptDTO = new AiPromptDTO(
+            imagePath: $promptDTO->imagePath,
+            actionType: $promptDTO->actionType,
+            userInstruction: $promptDTO->userInstruction,
+            systemPrompt: $promptDTO->systemPrompt,
+            options: array_merge($promptDTO->options, ['image_name' => $imageName])
         );
 
         $response = $this->aiManager->analyze($promptDTO, $providerName);

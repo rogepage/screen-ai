@@ -121,7 +121,10 @@
 
         <!-- ETAPA 1 -->
         <div id="step1" class="step-content active">
-            <h1>Screen AI</h1>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                <h1 style="margin: 0;">Screen AI</h1>
+                <span style="font-size: 11px; font-weight: 700; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); padding: 2px 7px; border-radius: 4px; letter-spacing: 0.5px;">v{{ config('nativephp.version', '1.0.0') }}</span>
+            </div>
             <p>Entenda e interaja com tudo o que aparece na sua tela utilizando Inteligência Artificial multimodal e captura nativa no macOS.</p>
             <div style="background: var(--bg-color); padding: 16px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 20px;">
                 <div style="font-weight: 600; font-size: 14px; color: #38bdf8; margin-bottom: 6px;">Privacidade e Segurança</div>

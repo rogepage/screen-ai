@@ -132,7 +132,10 @@
 <body>
     <div class="container">
         <header>
-            <h1>Configurações — Screen AI</h1>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <h1 style="margin: 0;">Configurações — Screen AI</h1>
+                <span style="font-size: 11px; font-weight: 700; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); padding: 2px 7px; border-radius: 4px; letter-spacing: 0.5px;">v{{ config('nativephp.version', '1.0.0') }}</span>
+            </div>
             <button class="btn-secondary" onclick="window.location.href='/'">« Voltar ao Painel</button>
         </header>
 

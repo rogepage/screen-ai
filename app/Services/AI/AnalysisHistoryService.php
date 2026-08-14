@@ -30,7 +30,8 @@ class AnalysisHistoryService
             errorMessage: ! $response->success ? $response->errorMessage : null,
             durationMs: $durationMs,
             userInstruction: $prompt->userInstruction,
-            language: $language
+            language: $language,
+            imageName: $prompt->options['image_name'] ?? ($prompt->imagePath ? basename($prompt->imagePath) : null)
         );
 
         return $this->repository->create($dto);
