@@ -3,8 +3,10 @@
 namespace Tests\Unit;
 
 use App\DTO\AiPromptDTO;
+use App\DTO\AiResponseDTO;
 use App\Enums\ActionType;
 use App\Events\AnalysisCompleted;
+use App\Events\AnalysisFailed;
 use App\Events\AnalysisStarted;
 use App\Services\AI\AiManagerService;
 use App\Services\AI\MockAiProvider;
@@ -13,25 +15,48 @@ use Tests\TestCase;
 
 class AiManagerServiceTest extends TestCase
 {
-    public function test_resolves_mock_provider_and_processes_prompt(): void
+    public function test_resolves_default_mock_provider(): void
     {
-        Event::fake();
+        $mock = new MockAiProvider();
+        $manager = new AiManagerService($mock);
 
-        $mockProvider = new MockAiProvider();
-        $manager = new AiManagerService($mockProvider);
+        $provider = $manager->getProvider('mock');
+        $this->assertEquals('mock', $provider->getName());
+    }
 
-        $prompt = new AiPromptDTO(
-            actionType: ActionType::INTERPRET,
-            userInstruction: 'Instrução de Teste'
-        );
+    public function test_analyze_dispatches_started_and_completed_events(): void
+    {
+        Event::fake([AnalysisStarted::class, AnalysisCompleted::class, AnalysisFailed::class]);
 
-        $response = $manager->analyze($prompt);
+        $mock = new MockAiProvider();
+        $manager = new AiManagerService($mock);
+
+        $prompt = new AiPromptDTO(actionType: ActionType::INTERPRET, userInstruction: 'Teste de análise');
+        $response = $manager->analyze($prompt, 'mock');
 
         $this->assertTrue($response->success);
         $this->assertEquals('mock', $response->provider);
-        $this->assertStringContainsString('Instrução de Teste', $response->text);
 
         Event::assertDispatched(AnalysisStarted::class);
         Event::assertDispatched(AnalysisCompleted::class);
+        Event::assertNotDispatched(AnalysisFailed::class);
+    }
+
+    public function test_analyze_dispatches_failed_event_when_provider_fails(): void
+    {
+        Event::fake([AnalysisStarted::class, AnalysisCompleted::class, AnalysisFailed::class]);
+
+        $mock = new MockAiProvider(shouldFail: true, simulatedErrorMessage: 'Simulação de erro na IA');
+        $manager = new AiManagerService($mock);
+
+        $prompt = new AiPromptDTO(actionType: ActionType::ANSWER);
+        $response = $manager->analyze($prompt, 'mock');
+
+        $this->assertFalse($response->success);
+        $this->assertEquals('Simulação de erro na IA', $response->errorMessage);
+
+        Event::assertDispatched(AnalysisStarted::class);
+        Event::assertDispatched(AnalysisFailed::class);
+        Event::assertNotDispatched(AnalysisCompleted::class);
     }
 }

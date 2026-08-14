@@ -18,10 +18,10 @@ class AiManagerService
     private array $providers = [];
 
     public function __construct(
-        private readonly ?AiProviderInterface $defaultProvider = null
+        ?AiProviderInterface $defaultProvider = null
     ) {
-        if ($this->defaultProvider !== null) {
-            $this->registerProvider($this->defaultProvider);
+        if ($defaultProvider !== null) {
+            $this->registerProvider($defaultProvider);
         }
     }
 
@@ -35,8 +35,6 @@ class AiManagerService
         $providerName = $name ?? config('screen_ai.ai.default_provider', 'mock');
 
         if (!isset($this->providers[$providerName])) {
-            // Se for solicitada a resolução de um provider não registrado (ou durante a Fase 2),
-            // se houver 'mock' registrado, retornamos mock ou lançamos exceção se não encontrado.
             if (isset($this->providers['mock'])) {
                 return $this->providers['mock'];
             }
@@ -55,7 +53,11 @@ class AiManagerService
             $provider = $this->getProvider($providerName);
             $response = $provider->process($prompt);
 
-            AnalysisCompleted::dispatch($response);
+            if ($response->success) {
+                AnalysisCompleted::dispatch($response);
+            } else {
+                AnalysisFailed::dispatch($response->errorMessage ?? 'Falha na análise da IA');
+            }
 
             return $response;
         } catch (Throwable $e) {

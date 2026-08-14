@@ -15,7 +15,11 @@ return [
     */
     'ai' => [
         'default_provider' => env('AI_PROVIDER', 'mock'),
-        'default_model' => env('AI_MODEL', 'mock-v1'),
+        'default_model' => env('AI_MODEL', 'gemini-1.5-flash'),
+        'api_key' => env('AI_API_KEY', ''),
+        'timeout' => (int) env('AI_TIMEOUT', 30),
+        'max_retries' => (int) env('AI_MAX_RETRIES', 2),
+        'response_language' => env('AI_RESPONSE_LANGUAGE', 'pt-BR'),
     ],
 
     /*

@@ -39,13 +39,25 @@ class AppServiceProvider extends ServiceProvider
         );
 
         $this->app->singleton(\App\Services\AI\MockAiProvider::class);
+        $this->app->singleton(\App\Services\AI\GeminiAiProvider::class);
+
         $this->app->bind(
             \App\Services\AI\AiProviderInterface::class,
-            \App\Services\AI\MockAiProvider::class
+            function ($app) {
+                $provider = config('screen_ai.ai.default_provider', 'mock');
+                if ($provider === 'gemini') {
+                    return $app->make(\App\Services\AI\GeminiAiProvider::class);
+                }
+                return $app->make(\App\Services\AI\MockAiProvider::class);
+            }
         );
 
         $this->app->singleton(\App\Services\AI\AiManagerService::class, function ($app) {
-            $manager = new \App\Services\AI\AiManagerService($app->make(\App\Services\AI\MockAiProvider::class));
+            $mock = $app->make(\App\Services\AI\MockAiProvider::class);
+            $gemini = $app->make(\App\Services\AI\GeminiAiProvider::class);
+
+            $manager = new \App\Services\AI\AiManagerService($mock);
+            $manager->registerProvider($gemini);
             return $manager;
         });
     }
