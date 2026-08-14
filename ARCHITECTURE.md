@@ -97,6 +97,30 @@ Concrete Provider    EloquentAnalysisHistoryRepository
                      SQLite Database
 ```
 
+## Orquestração do Monitoramento Contínuo (Fase 10)
+
+O monitoramento contínuo opera de forma autônoma e eficiente:
+
+```text
+ContinuousMonitorService (Ciclo no intervalo ms)
+       │
+       ▼
+ScreenCaptureInterface ──► CaptureResultDTO ──► ChangeDetectorInterface
+                                                      │
+                                                 houve mudança?
+                                                  ┌───┴───┐
+                                                 NÃO     SIM
+                                                  │       │
+                                               descarte   ▼
+                                                    CaptureDebounceService (Estabilização)
+                                                          │
+                                                          ▼
+                                                    ProcessScreenAnalysisJob (Fila Assíncrona)
+                                                          │
+                                                          ▼
+                                                    ImageProcessorInterface ──► AnalysisService
+```
+
 ## Experiência Nativa do macOS (Fase 11)
 
 A camada nativa integra o Screen AI ao ecossistema do macOS via NativePHP 2.2 Desktop:
@@ -139,8 +163,8 @@ Capture Pipeline          AIManagerService
 - FASE 7  → Integração com IA (CONCLUÍDA)
 - FASE 8  → Modos de análise (CONCLUÍDA)
 - FASE 9  → Histórico (CONCLUÍDA)
-- FASE 10 → Monitoramento Contínuo (CONCLUÍDA)
-- FASE 11 → Experiência Nativa do macOS (EM ANDAMENTO)
+- FASE 10 → Monitoramento Contínuo (EM ANDAMENTO)
+- FASE 11 → Experiência Nativa do macOS (CONCLUÍDA)
 - FASE 12 → Overlay
 - FASE 13 → Otimização
 - FASE 14 → Distribuição

@@ -2,13 +2,12 @@
 
 namespace App\Services\Screen;
 
+use App\DTO\CaptureResultDTO;
 use App\DTO\MonitorConfigDTO;
 use App\Enums\MonitorState;
 use App\Events\MonitorPaused;
 use App\Events\MonitorStarted;
 use App\Events\MonitorStopped;
-
-use App\DTO\CaptureResultDTO;
 use App\Events\ScreenChanged;
 
 class ScreenMonitorService
@@ -18,7 +17,8 @@ class ScreenMonitorService
     private ?CaptureResultDTO $lastCapture = null;
 
     public function __construct(
-        private readonly ?ChangeDetectorInterface $changeDetector = null
+        private readonly ?ChangeDetectorInterface $changeDetector = null,
+        private readonly ?ContinuousMonitorService $continuousMonitor = null
     ) {}
 
     public function getState(): MonitorState
@@ -45,6 +45,12 @@ class ScreenMonitorService
         }
 
         return false;
+    }
+
+    public function executeCycle(): ?CaptureResultDTO
+    {
+        $orchestrator = $this->continuousMonitor ?? app(ContinuousMonitorService::class);
+        return $orchestrator->runCycle($this);
     }
 
     public function getConfig(): ?MonitorConfigDTO
@@ -97,4 +103,3 @@ class ScreenMonitorService
         }
     }
 }
-

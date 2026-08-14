@@ -73,9 +73,15 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\EloquentAnalysisHistoryRepository::class
         );
 
-        $this->app->singleton(\App\Services\AI\AnalysisHistoryService::class);
-
         $this->app->singleton(\App\Services\Native\NativeBridgeService::class);
+
+        $this->app->singleton(\App\Services\Screen\CaptureDebounceService::class, function () {
+            return new \App\Services\Screen\CaptureDebounceService(
+                (int) config('screen_ai.monitor.debounce_ms', 500)
+            );
+        });
+
+        $this->app->singleton(\App\Services\Screen\ContinuousMonitorService::class);
     }
 
     /**

@@ -171,6 +171,32 @@
         </div>
 
         <div class="card">
+            <h2>Orquestração do Monitoramento Contínuo (Fase 10)</h2>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 12px; text-align: center;">
+                <div style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px;">
+                    <div style="font-size: 11px; color: var(--muted-text);">Ciclos Executados</div>
+                    <div id="metricCycles" style="font-size: 18px; font-weight: 700; color: #38bdf8;">0</div>
+                </div>
+                <div style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px;">
+                    <div style="font-size: 11px; color: var(--muted-text);">Capturas Realizadas</div>
+                    <div id="metricCaptures" style="font-size: 18px; font-weight: 700; color: #22c55e;">0</div>
+                </div>
+                <div style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px;">
+                    <div style="font-size: 11px; color: var(--muted-text);">Estabilizados (Debounce)</div>
+                    <div id="metricDebounced" style="font-size: 18px; font-weight: 700; color: #eab308;">0</div>
+                </div>
+                <div style="background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px;">
+                    <div style="font-size: 11px; color: var(--muted-text);">Jobs Enfileirados</div>
+                    <div id="metricQueued" style="font-size: 18px; font-weight: 700; color: #a855f7;">0</div>
+                </div>
+            </div>
+            <div class="btn-group" style="margin: 0;">
+                <button class="btn-secondary" onclick="triggerContinuousCycle()">Executar Ciclo de Loop Manual</button>
+                <button class="btn-secondary" onclick="fetchPipelineStats()">Atualizar Métricas</button>
+            </div>
+        </div>
+
+        <div class="card">
             <h2>Seleção de Área da Tela (Fase 3)</h2>
             <div style="margin-bottom: 16px; font-size: 14px;">
                 Região Ativa: <strong id="activeRegionText" style="color: #38bdf8;">Nenhuma área selecionada</strong>
@@ -675,6 +701,34 @@
             }
         }
 
+        async function fetchPipelineStats() {
+            try {
+                const res = await fetch('/api/monitor/pipeline');
+                const data = await res.json();
+                if (data.stats) {
+                    document.getElementById('metricCycles').innerText = data.stats.cycles_count || 0;
+                    document.getElementById('metricCaptures').innerText = data.stats.captures_count || 0;
+                    document.getElementById('metricQueued').innerText = data.stats.queued_jobs_count || 0;
+                    if (data.stats.debounce_stats) {
+                        document.getElementById('metricDebounced').innerText = data.stats.debounce_stats.debounced_count || 0;
+                    }
+                }
+            } catch (e) {
+                // Silencioso
+            }
+        }
+
+        async function triggerContinuousCycle() {
+            try {
+                const res = await fetch('/api/monitor/cycle', { method: 'POST' });
+                const data = await res.json();
+                log(`[Ciclo Contínuo] ${data.message}`);
+                fetchPipelineStats();
+            } catch (e) {
+                log('Erro ao executar ciclo manual: ' + e.message);
+            }
+        }
+
         function openFloatingOverlay() {
             window.open('/overlay', 'ScreenAIOverlay', 'width=360,height=180,resizable=no,scrollbars=no');
             log('Overlay flutuante aberto com sucesso.');
@@ -682,6 +736,7 @@
 
         fetchState();
         loadHistory(1);
+        fetchPipelineStats();
     </script>
 </body>
 </html>

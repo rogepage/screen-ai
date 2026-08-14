@@ -18,6 +18,7 @@ use App\Enums\AnalysisStatus;
 use App\Services\AI\AnalysisHistoryService;
 use App\Services\AI\AnalysisService;
 use App\Services\Native\NativeBridgeService;
+use App\Services\Screen\ContinuousMonitorService;
 use App\Services\Screen\ImageProcessorInterface;
 
 class MonitorController extends Controller
@@ -30,7 +31,8 @@ class MonitorController extends Controller
         private readonly ImageProcessorInterface $imageProcessor,
         private readonly AnalysisService $analysisService,
         private readonly AnalysisHistoryService $historyService,
-        private readonly NativeBridgeService $nativeBridge
+        private readonly NativeBridgeService $nativeBridge,
+        private readonly ContinuousMonitorService $continuousMonitor
     ) {}
 
     public function getState(): JsonResponse
@@ -244,6 +246,25 @@ class MonitorController extends Controller
     public function getNativeStatus(): JsonResponse
     {
         return response()->json($this->nativeBridge->getNativeStatus());
+    }
+
+    public function executeCycle(): JsonResponse
+    {
+        $capture = $this->continuousMonitor->runCycle($this->monitorService);
+
+        return response()->json([
+            'message' => $capture ? 'Ciclo executado com captura de frame' : 'Ciclo executado (sem captura/mudança)',
+            'capture' => $capture?->toArray(),
+            'stats' => $this->continuousMonitor->getStats(),
+        ]);
+    }
+
+    public function getPipelineStats(): JsonResponse
+    {
+        return response()->json([
+            'state' => $this->monitorService->getState()->value,
+            'stats' => $this->continuousMonitor->getStats(),
+        ]);
     }
 }
 

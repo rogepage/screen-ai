@@ -32,7 +32,9 @@ return [
     */
     'monitor' => [
         'default_interval_ms' => 1000,
+        'debounce_ms' => (int) env('SCREEN_DEBOUNCE_MS', 500),
         'change_threshold' => (float) env('SCREEN_CHANGE_THRESHOLD', 0.05),
+        'queue_name' => env('SCREEN_ANALYSIS_QUEUE', 'default'),
         'storage_path' => storage_path('app/captures'),
     ],
 
